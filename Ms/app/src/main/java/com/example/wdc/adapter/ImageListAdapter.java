@@ -1,7 +1,5 @@
 package com.example.wdc.adapter;
 
-import android.content.Context;
-import android.graphics.Rect;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,7 +13,6 @@ import com.example.wdc.bean.images.ImagesBean;
 import com.example.wdc.event.ImageOnClick;
 import com.example.wdc.ms.R;
 import com.example.wdc.utils.CommonUtils;
-import com.example.wdc.widgets.GlideRoundTransform;
 
 import org.greenrobot.eventbus.EventBus;
 

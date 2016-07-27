@@ -3,9 +3,6 @@ package com.example.wdc.loading;
 import android.content.Context;
 import android.view.View;
 
-/**
- *
- */
 public interface IVaryViewHelper {
     /**
      * 获得当前显示的view
