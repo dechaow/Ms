@@ -10,6 +10,7 @@ import android.widget.RelativeLayout;
 import com.example.wdc.ms.R;
 import com.example.wdc.ui.activity.qrcode.CaptureActivity;
 import com.example.wdc.ui.fragment.base.BaseFragment;
+//import com.example.wdc.widgets.CircleImageView;
 
 import butterknife.BindView;
 
@@ -20,6 +21,8 @@ public class DrawerFragment extends BaseFragment implements NavigationView.OnNav
 
     @BindView(R.id.main_nav_view)
     protected NavigationView mNavigationView;
+//    @BindView(R.id.nav_icon)
+//    protected CircleImageView img;
 
     @Override
     protected void onFirstUserVisible() {

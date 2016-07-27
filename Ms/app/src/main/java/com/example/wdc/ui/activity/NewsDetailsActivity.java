@@ -62,6 +62,7 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
 
     @Override
     protected void initViewsAndEvents() {
+        toolbar.setBackgroundResource(android.R.color.transparent);
         toolbar.setTitle("");
         CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) toolbar.getLayoutParams();
         params.height = CommonUtils.getToolbarHeight(this) + CommonUtils.getStatusBarHeight(this);
@@ -113,7 +114,6 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setTitle(result.getTitle());
-        System.out.println("source ------------------ " + result.getImage_source());
         Glide.with(this)
                 .load(result.getImage())
                 .centerCrop()
