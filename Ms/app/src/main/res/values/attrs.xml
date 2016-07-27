@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleImageView">
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
+    </declare-styleable>
+    <!-- toolbar txt color-->
+    <attr name="toolbar_text_color" format="color"/>
+
+    <attr name="toolbar_menu_text_color" format="color"/>
+
+    <attr name="myTheme" format="integer">
+        <enum name="defult" value="0"/>
+        <enum name="theme1" value="1"/>
+    </attr>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBase">#F55F6E</color>
+    <color name="colorToolbarMenuText">#000000</color>
+    <color name="colorTitleText">#FFFFFF</color>
+    <color name="colorLine">#eeeeee</color>
+    <color name="colorTran">#00000000</color>
+
+    <color name="alpha_80_black">#CC000000</color>
+    <color name="sr_window_background">#FFFEFEFE</color>
+
+    <color name="common_list_item_bg_pressed_color">#FFEEEEEE</color>
+    <color name="common_list_item_bg_normal_color">#FFFEFEFE</color>
+</resources>

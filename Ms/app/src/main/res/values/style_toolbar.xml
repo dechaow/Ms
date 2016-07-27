@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MyToolBar" parent="Base.Widget.AppCompat.Toolbar">
+        <!-- toolbar标题颜色 -->
+        <item name="titleTextColor">?attr/toolbar_text_color</item>
+        <!-- actionbar默认按钮颜色 -->
+        <item name="colorControlNormal">?attr/toolbar_text_color</item>
+        <!-- 弹出菜单的样式 -->
+        <item name="popupTheme">@style/MyToolBarPopupTheme</item>
+        <!-- 子控件相当于父控件位置 -->
+        <item name="android:gravity">center</item>
+        <!-- navigationbutton -->
+        <item name="toolbarNavigationButtonStyle">@style/Widget.AppCompat.Toolbar.Button.Navigation</item>
+    </style>
+
+    <style name="MyToolBarPopupTheme" parent="Base.ThemeOverlay.AppCompat.Light">
+        <!-- Menu文字颜色 -->
+        <item name="android:textColorPrimary">?attr/toolbar_menu_text_color</item>
+        <!-- 子控件相对于父控件位置 -->
+        <item name="android:gravity">center_vertical</item>
+    </style>
+</resources>

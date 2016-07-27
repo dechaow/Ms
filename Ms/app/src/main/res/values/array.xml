@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="tabItemData">
+        <item>新闻</item>
+        <item>图片</item>
+    </array>
+    <array name="circular_color">
+        <item>@color/circular_red</item>
+    </array>
+</resources>
