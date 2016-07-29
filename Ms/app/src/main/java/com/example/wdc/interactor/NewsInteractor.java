@@ -7,8 +7,6 @@ import android.content.Context;
  */
 public interface NewsInteractor {
 
-    void getRefreshDate(Context context,String date);
-
-    void getLoadData(Context context,String date);
+    void loadDate(Context context,String date);
 
 }

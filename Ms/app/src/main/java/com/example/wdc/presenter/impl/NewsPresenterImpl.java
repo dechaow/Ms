@@ -1,14 +1,21 @@
 package com.example.wdc.presenter.impl;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
 import com.example.wdc.bean.news.NewsBean;
 import com.example.wdc.bean.news.NewsListBean;
+import com.example.wdc.event.ImagePushClick;
+import com.example.wdc.event.NewsPushClick;
 import com.example.wdc.interactor.NewsInteractor;
 import com.example.wdc.interactor.impl.NewsInteractorImpl;
 import com.example.wdc.presenter.NewsPresenter;
 import com.example.wdc.server.INetResult;
 import com.example.wdc.view.NewsView;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by wdc on 2016/7/25.
@@ -18,6 +25,8 @@ public class NewsPresenterImpl implements NewsPresenter,INetResult<NewsListBean>
     private Context context;
     private NewsView mNewsView;
     private NewsInteractor mNewsInteractor;
+
+    private Boolean isRefresh;
 
     public NewsPresenterImpl(Context context, NewsView mNewsView) {
         this.context = context;
@@ -31,20 +40,35 @@ public class NewsPresenterImpl implements NewsPresenter,INetResult<NewsListBean>
     }
 
     @Override
-    public void loadListData(String date) {
-        mNewsInteractor.getRefreshDate(context,date);
-        mNewsView.showLoading("正在加载...");
+    public void loadListData(String date,Boolean isRefresh) {
+        mNewsInteractor.loadDate(context,date);
+        if (isRefresh){
+                    mNewsView.showLoading("正在加载...");
+        }
+        this.isRefresh = isRefresh;
     }
+
 
     @Override
     public void onSuccess(NewsListBean result) {
         mNewsView.hideLoading();
-        mNewsView.addRefreshData(result);
+        if (isRefresh){
+            mNewsView.addRefreshData(result);
+        }else{
+            mNewsView.addLoadMoreData(result);
+        }
     }
 
     @Override
     public void onErro(String erro) {
+        mNewsView.hideLoading();
         mNewsView.showErro(erro);
+        Snackbar.make(((Activity)context).getWindow().getDecorView(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new NewsPushClick());
+            }
+        }).show();
     }
 
     @Override

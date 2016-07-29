@@ -1,27 +1,26 @@
 package com.example.wdc.ui.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
 
 import com.example.wdc.ms.R;
-import com.example.wdc.presenter.Presenter;
-import com.example.wdc.presenter.impl.SplashPresenterImpl;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.utils.NetUtils;
-import com.example.wdc.view.SplashView;
+import com.example.wdc.widgets.TitanicTextView.Titanic;
+import com.example.wdc.widgets.TitanicTextView.TitanicTextView;
 
 import butterknife.BindView;
 
 /**
  * Created by wdc on 2016/7/20.
  */
-public class SplashActivity extends BaseAppCompatActivity implements SplashView {
+public class SplashActivity extends BaseAppCompatActivity{
 
-    @BindView(R.id.splash_rootview)
-    LinearLayout splashRootView;
-    Presenter presenter;
+    @BindView(R.id.titanic_tv)
+    protected TitanicTextView myTitanicTextView;
+    private Titanic titanic;
     @Override
     protected void getBundleExtras(Bundle extras) {
 
@@ -39,8 +38,9 @@ public class SplashActivity extends BaseAppCompatActivity implements SplashView 
 
     @Override
     protected void initViewsAndEvents() {
-        presenter = new SplashPresenterImpl(this,this);
-        presenter.initialized();
+        titanic = new Titanic();
+        titanic.start(myTitanicTextView);
+        new Thread(runnable).start();
     }
 
     @Override
@@ -78,19 +78,28 @@ public class SplashActivity extends BaseAppCompatActivity implements SplashView 
         return false;
     }
 
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == 1){
+                readyGoThenKill(MainActivity.class);
+            }
+        }
+    };
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(3000);
+                handler.sendEmptyMessage(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
     @Override
-    public void setBackground(int resId) {
-
-    }
-
-    @Override
-    public void startMainPage() {
-        readyGoThenKill(MainActivity.class);
-    }
-
-    @Override
-    public void showAnimation(Animation set) {
-//        this.getWindow().getDecorView().startAnimation(set);
-        splashRootView.startAnimation(set);
+    protected void onPause() {
+        super.onPause();
+        titanic.cancel();
     }
 }

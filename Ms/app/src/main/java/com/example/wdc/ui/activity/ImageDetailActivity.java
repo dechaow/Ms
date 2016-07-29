@@ -1,9 +1,12 @@
 package com.example.wdc.ui.activity;
 
+import android.annotation.TargetApi;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.wdc.bean.images.ImagesListBean;
@@ -13,6 +16,7 @@ import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.fragment.ImagesFragment;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.widgets.SmoothImageView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import butterknife.BindView;
 import uk.co.senab.photoview.PhotoView;
@@ -21,10 +25,12 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /**
  * Created by wdc on 2016/7/26.
  */
-public class ImageDetailActivity extends BaseActivity {
+public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @BindView(R.id.imgdetail_smoothimgview)
     protected SmoothImageView mSmoothImageView;
+    @BindView(R.id.imagedetail_root)
+    protected LinearLayout imagedetail_root;
 
     private int x;
     private int y;
@@ -42,6 +48,7 @@ public class ImageDetailActivity extends BaseActivity {
             height = extras.getInt(ImagesFragment.KEY_IMG_HEIGHT);
 
         }
+        setTheme(R.style.DefaultTheme_ImageDetailTheme);
     }
 
     @Override
@@ -53,12 +60,15 @@ public class ImageDetailActivity extends BaseActivity {
     protected View getLoadingTargetView() {
         return null;
     }
-
     @Override
     protected void initViewsAndEvents() {
+        imagedetail_root.setBackgroundResource(android.R.color.transparent);
         mSmoothImageView.setOriginalInfo(width, height, x, y);
         mSmoothImageView.transformIn();
-        Glide.with(this).load(url).into(mSmoothImageView);
+        ImageLoader.getInstance().displayImage(url, mSmoothImageView);
+//        Glide.with(this).load(url)
+//                .placeholder(drawable)
+//                .into(mSmoothImageView);
 
         mSmoothImageView.setOnTransformListener(new SmoothImageView.TransformListener() {
             @Override

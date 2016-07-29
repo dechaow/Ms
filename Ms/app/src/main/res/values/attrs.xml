@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <declare-styleable name="MateialProgressBar">
+        <attr name="pro_border_width" format="dimension"/>
+        <attr name="arc_color" format="color"/>
+    </declare-styleable>
+
     <declare-styleable name="CircleImageView">
         <attr name="border_width" format="dimension" />
         <attr name="border_color" format="color" />
@@ -8,6 +14,8 @@
     <attr name="toolbar_text_color" format="color"/>
 
     <attr name="toolbar_menu_text_color" format="color"/>
+
+    <attr name="progress_color" format="color"/>
 
     <attr name="myTheme" format="integer">
         <enum name="defult" value="0"/>

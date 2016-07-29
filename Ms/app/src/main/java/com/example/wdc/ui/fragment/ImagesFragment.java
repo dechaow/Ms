@@ -1,25 +1,26 @@
 package com.example.wdc.ui.fragment;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
-import android.webkit.URLUtil;
 
 import com.example.wdc.adapter.ImageListAdapter;
 import com.example.wdc.bean.images.ImagesBean;
 import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.event.ImageOnClick;
+import com.example.wdc.event.ImagePushClick;
 import com.example.wdc.ms.R;
 import com.example.wdc.presenter.ImagesPresenter;
 import com.example.wdc.presenter.impl.ImagesPresenterImpl;
 import com.example.wdc.ui.activity.ImageDetailActivity;
 import com.example.wdc.ui.fragment.base.BaseFragment;
-import com.example.wdc.utils.CommonUtils;
+import com.example.wdc.utils.DateUtils;
 import com.example.wdc.utils.PrefUtil;
 import com.example.wdc.utils.UrlUtils;
 import com.example.wdc.view.ImagesView;
@@ -28,14 +29,14 @@ import com.example.wdc.widgets.SpacesItemDecoration;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.net.URLEncoder;
+import java.util.List;
 
 import butterknife.BindView;
 
 /**
  * Created by wdc on 2016/7/21.
  */
-public class ImagesFragment extends BaseFragment implements ImagesView {
+public class ImagesFragment extends BaseFragment implements ImagesView{
 
     @BindView(R.id.images_swipe_refresh_layout)
     protected SwipeRefreshLayout mReLayout;
@@ -44,8 +45,10 @@ public class ImagesFragment extends BaseFragment implements ImagesView {
 
     private ImagesPresenter mPresenter;
     private ImageListAdapter mAdapter;
-    private ImagesBean mImagesBean;
-    int page = 3;
+    private List<ImagesListBean> mImagesBean;
+    private StaggeredGridLayoutManager manager;
+    private int page = 3;
+    private int listSize;
 
     public static final String KEY_IMG_URL = "url";
     public static final String KEY_IMG_X = "x";
@@ -55,11 +58,12 @@ public class ImagesFragment extends BaseFragment implements ImagesView {
 
     @Override
     protected void onFirstUserVisible() {
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
+        manager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(manager);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
         mPresenter = new ImagesPresenterImpl(getActivity(),this);
         try {
-            mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,0, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM);
+            mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,0, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,true);
         }catch (Exception e){
             Log.d("load image",e.getMessage());
         }
@@ -91,10 +95,21 @@ public class ImagesFragment extends BaseFragment implements ImagesView {
             @Override
             public void onRefresh() {
                 try {
-                    page ++;
-                    mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,page, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM);
+                    mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,page, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,true);
                 }catch (Exception e){
                     Log.d("load image",e.getMessage());
+                }
+            }
+        });
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                int count = findMax(manager.findLastVisibleItemPositions(new int[manager.getSpanCount()]));
+                System.out.println(listSize + " <- listSize   " + count + " <- count");
+                if ( (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) &&  (count == (listSize-1)) && (listSize!=0)){
+                    Snackbar.make(getActivity().getWindow().getDecorView(),"加载更多",Snackbar.LENGTH_SHORT).show();
+                    page ++;
+                    mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,page, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,false);
                 }
             }
         });
@@ -112,31 +127,33 @@ public class ImagesFragment extends BaseFragment implements ImagesView {
 
     @Override
     public void showImagesData(ImagesBean bean) {
-        Boolean isFrist = true;
-        if (mAdapter != null){
-            isFrist = false;
-        }
-        mImagesBean = bean;
+        mImagesBean = bean.getImgs();
+        listSize = mImagesBean.size();
         mReLayout.setRefreshing(false);
-        mAdapter = new ImageListAdapter(this,mImagesBean,mScreenWidth);
-        if (!isFrist){
-            mAdapter = new ImageListAdapter(this,mImagesBean,mScreenWidth);
+        if (mAdapter != null){
             mAdapter.notifyDataSetChanged();
+            mRecyclerView.setHasFixedSize(true);
+            listSize += mImagesBean.size();
         }else{
+            mAdapter = new ImageListAdapter(this,mImagesBean,mScreenWidth);
             mRecyclerView.setAdapter(mAdapter);
         }
+
 
     }
 
     @Override
     public void showMoreImagesData(ImagesBean bean) {
-
+        mImagesBean.addAll(bean.getImgs());
+        mAdapter.notifyDataSetChanged();
+        mRecyclerView.setHasFixedSize(true);
+        listSize = mImagesBean.size();
     }
 
     @Override
     public void ToDetails(ImagesListBean images, int x, int y, int width, int height) {
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_IMG_URL,images.getImageUrl());
+        bundle.putString(KEY_IMG_URL,images.getThumbnailUrl());
         bundle.putInt(KEY_IMG_X,x);
         bundle.putInt(KEY_IMG_Y,y);
         bundle.putInt(KEY_IMG_WIDTH,width);
@@ -150,5 +167,18 @@ public class ImagesFragment extends BaseFragment implements ImagesView {
     public void onEvent(ImageOnClick click){
         mPresenter.onItemClickListener(click.listBean,click.x,click.y,click.width,click.height);
     }
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onEvent(ImagePushClick click){
+        mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,page, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,true);
+    }
 
+    private int findMax(int[] lastPositions) {
+        int max = lastPositions[0];
+        for (int value : lastPositions) {
+            if (value > max) {
+                max = value;
+            }
+        }
+        return max;
+    }
 }

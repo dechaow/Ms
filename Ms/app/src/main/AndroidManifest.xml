@@ -18,17 +18,18 @@
         <activity
             android:name="com.example.wdc.ui.activity.MainActivity"
             >
+
+        </activity>
+        <activity android:name="com.example.wdc.ui.activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.wdc.ui.activity.SplashActivity">
-        </activity>
         <activity android:name="com.example.wdc.ui.activity.NewsDetailsActivity"></activity>
         <activity android:name="com.example.wdc.ui.activity.ImageDetailActivity"
-            android:theme="@style/ImageDetailTheme"
+            android:theme="@style/DefaultTheme.ImageDetailTheme"
             android:screenOrientation="portrait"
             ></activity>
         <activity android:name="com.example.wdc.ui.activity.picker.CommonImagePickerDetailActivity"/>

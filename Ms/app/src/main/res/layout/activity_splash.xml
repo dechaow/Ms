@@ -4,6 +4,13 @@
     android:layout_height="match_parent"
     android:background="?attr/colorPrimary"
     android:id="@+id/splash_rootview"
+    android:gravity="center"
     >
-
+    <com.example.wdc.widgets.TitanicTextView.TitanicTextView
+        android:id="@+id/titanic_tv"
+        android:text="Ms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="150sp"/>
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.example.wdc.ui.fragment;
 
 import android.support.design.widget.NavigationView;
+import android.support.v7.app.AlertDialog;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.RelativeLayout;
 import com.example.wdc.ms.R;
 import com.example.wdc.ui.activity.qrcode.CaptureActivity;
 import com.example.wdc.ui.fragment.base.BaseFragment;
+import com.example.wdc.widgets.CircleImageView;
 //import com.example.wdc.widgets.CircleImageView;
 
 import butterknife.BindView;
@@ -21,8 +23,7 @@ public class DrawerFragment extends BaseFragment implements NavigationView.OnNav
 
     @BindView(R.id.main_nav_view)
     protected NavigationView mNavigationView;
-//    @BindView(R.id.nav_icon)
-//    protected CircleImageView img;
+
 
     @Override
     protected void onFirstUserVisible() {
@@ -50,7 +51,15 @@ public class DrawerFragment extends BaseFragment implements NavigationView.OnNav
         RelativeLayout mHeader = (RelativeLayout) mHeaderView.findViewById(R.id.nav_header);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,mScreenHeight/3);
         mHeader.setLayoutParams(params);
+        CircleImageView img = (CircleImageView) mHeaderView.findViewById(R.id.nav_icon);
         mNavigationView.setNavigationItemSelectedListener(this);
+        img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("更换头像").setNegativeButton("拍照",null).setPositiveButton("相册",null).create().show();
+            }
+        });
     }
 
     @Override

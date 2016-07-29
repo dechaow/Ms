@@ -3,6 +3,9 @@ package com.example.wdc.app;
 import android.app.Application;
 import android.content.Context;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 /**
  * Created by wdc on 2016/7/22.
  */
@@ -14,6 +17,9 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         mContext = this;
+
+        ImageLoader.getInstance().init(new ImageLoaderConfiguration.Builder(mContext).build());
+
     }
 
     /**

@@ -7,7 +7,7 @@ import com.example.wdc.bean.images.ImagesListBean;
  */
 public interface ImagesPresenter {
 
-    void loadImages(String col,String tag,int pn,int rn,int from);
+    void loadImages(String col,String tag,int pn,int rn,int from,boolean isRefresh);
 
     void onItemClickListener(ImagesListBean images,int x,int y,int width,int height);
 

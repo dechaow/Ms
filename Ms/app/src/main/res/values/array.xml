@@ -4,7 +4,12 @@
         <item>新闻</item>
         <item>图片</item>
     </array>
-    <array name="circular_color">
-        <item>@color/circular_red</item>
+
+    <array name="circular_color_sequence">
+        <item>?attr/progress_color</item>
+        <item>?attr/progress_color</item>
+        <item>?attr/progress_color</item>
+        <item>?attr/progress_color</item>
     </array>
+
 </resources>

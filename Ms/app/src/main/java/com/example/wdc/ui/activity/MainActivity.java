@@ -133,8 +133,6 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
             mTransaction.remove(fragment);
         }
         mTransaction.replace(R.id.main_frame,fragment);
-//        mTransaction.add(R.id.main_frame,fragment);
-//        mTransaction.show(fragment);
         mTransaction.commit();
     }
 

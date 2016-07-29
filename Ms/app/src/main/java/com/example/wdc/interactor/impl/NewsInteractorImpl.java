@@ -25,7 +25,7 @@ public class NewsInteractorImpl implements NewsInteractor {
     }
 
     @Override
-    public void getRefreshDate(Context context,String date) {
+    public void loadDate(Context context,String date) {
         RetrofitManager.builder(context, UrlUtils.BASE_NEWS_URL)
                 .getNewsData(date)
                 .subscribeOn(Schedulers.io())
@@ -48,7 +48,4 @@ public class NewsInteractorImpl implements NewsInteractor {
                 });
     }
 
-    @Override
-    public void getLoadData(Context context,String date) {
-    }
 }

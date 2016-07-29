@@ -37,9 +37,9 @@ public class CommonImagePickerListActivity extends BaseActivity {
     public static final String KEY_BUNDLE_ALBUM_NAME = "KEY_BUNDLE_ALBUM_NAME";
 
     @BindView(R.id.common_image_picker_list_view)
-    ListView mImagePickerListView;
+    protected ListView mImagePickerListView;
     @BindView(R.id.common_toolbar)
-    Toolbar toolbar;
+    protected Toolbar toolbar;
 
     private ListViewDataAdapter<ImageBucket> mListViewAdapter = null;
     private AsyncTask<Void, Void, List<ImageBucket>> mAlbumLoadTask = null;

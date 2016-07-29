@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2015 [1076559197@qq.com | tchen0707@gmail.com]
- *
- * Licensed under the Apache License, Version 2.0 (the "License”);
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.wdc.widgets;
 
 import android.app.Activity;
@@ -23,7 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -75,7 +59,7 @@ public class SmoothImageView extends PhotoView {
         init();
     }
 
-    public void init() {
+    private void init() {
         mSmoothMatrix = new Matrix();
         mPaint = new Paint();
         mPaint.setColor(mBgColor);
@@ -169,12 +153,12 @@ public class SmoothImageView extends PhotoView {
         if (getDrawable() == null) {
             return;
         }
-        
+
         //防止转换失败
         if (getDrawable() instanceof ColorDrawable) return;
 
         if (mBitmap == null || mBitmap.isRecycled()) {
-            mBitmap = ((GlideBitmapDrawable) getDrawable()).getBitmap();
+            mBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
         }
         //防止mTransfrom重复的做同样的初始化
         if (mTransfrom != null) {
@@ -246,7 +230,7 @@ public class SmoothImageView extends PhotoView {
             return;
         }
         if (mBitmap == null || mBitmap.isRecycled()) {
-            mBitmap = ((GlideBitmapDrawable) getDrawable()).getBitmap();
+            mBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
         }
 		/* 下面实现了CENTER_CROP的功能 */
         float xScale = mOriginalWidth / ((float) mBitmap.getWidth());
@@ -265,7 +249,7 @@ public class SmoothImageView extends PhotoView {
             return;
         }
         if (mBitmap == null || mBitmap.isRecycled()) {
-            mBitmap = ((GlideBitmapDrawable) getDrawable()).getBitmap();
+            mBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
         }
 		/* 下面实现了CENTER_CROP的功能 */
         mSmoothMatrix.setScale(mTransfrom.scale, mTransfrom.scale);

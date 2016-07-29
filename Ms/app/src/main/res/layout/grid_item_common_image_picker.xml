@@ -7,7 +7,7 @@
 
     <ImageView
         android:id="@+id/grid_item_common_image_picker_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:scaleType="centerCrop"/>
 </RelativeLayout>

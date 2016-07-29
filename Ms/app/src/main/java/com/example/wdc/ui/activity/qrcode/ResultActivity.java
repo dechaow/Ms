@@ -21,11 +21,11 @@ public class ResultActivity extends BaseAppCompatActivity {
     public static final String BUNDLE_KEY_SCAN_RESULT = "BUNDLE_KEY_SCAN_RESULT";
 
     @BindView(R.id.result_image)
-    ImageView resultImage;
+    protected ImageView resultImage;
     @BindView(R.id.result_type)
-    TextView resultType;
+    protected TextView resultType;
     @BindView(R.id.result_content)
-    TextView resultContent;
+    protected TextView resultContent;
 
     private Bitmap mBitmap;
     private int mDecodeMode;

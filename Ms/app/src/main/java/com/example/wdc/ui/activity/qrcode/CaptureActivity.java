@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -21,6 +22,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.wdc.ms.R;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.activity.picker.CommonImagePickerDetailActivity;
@@ -38,6 +40,9 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.nineoldandroids.view.ViewHelper;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.io.IOException;
 
@@ -491,44 +496,44 @@ public class CaptureActivity extends BaseAppCompatActivity implements SurfaceHol
                     .KEY_BUNDLE_RESULT_IMAGE_PATH);
 
             if (!CommonUtils.isEmpty(imagePath)) {
-//                Glide.with(CaptureActivity.this).load("file://" + imagePath)
-//                ImageLoader.getInstance().loadImage("file://" + imagePath, new ImageLoadingListener() {
-//                    @Override
-//                    public void onLoadingStarted(String imageUri, View view) {
-//                    }
-//
-//                    @Override
-//                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//                        String resultZxing = new DecodeUtils(DecodeUtils.DECODE_DATA_MODE_ALL)
-//                                .decodeWithZxing(loadedImage);
-//                        String resultZbar = new DecodeUtils(DecodeUtils.DECODE_DATA_MODE_ALL)
-//                                .decodeWithZbar(loadedImage);
-//
-//                        if (!CommonUtils.isEmpty(resultZbar)) {
-//                            Bundle extras = new Bundle();
-//                            extras.putInt(DecodeThread.DECODE_MODE, DecodeUtils.DECODE_MODE_ZBAR);
-//
-//                            handleDecode(resultZbar, extras);
-//                        } else if (!CommonUtils.isEmpty(resultZxing)) {
-//                            Bundle extras = new Bundle();
-//                            extras.putInt(DecodeThread.DECODE_MODE, DecodeUtils.DECODE_MODE_ZXING);
-//
-//                            handleDecode(resultZxing, extras);
-//                        } else {
-//                            showToast("未解析到任何数据");
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onLoadingCancelled(String imageUri, View view) {
-//
-//                    }
-//                });
+
+                ImageLoader.getInstance().loadImage("file://" + imagePath, new ImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        String resultZxing = new DecodeUtils(DecodeUtils.DECODE_DATA_MODE_ALL)
+                                .decodeWithZxing(loadedImage);
+                        String resultZbar = new DecodeUtils(DecodeUtils.DECODE_DATA_MODE_ALL)
+                                .decodeWithZbar(loadedImage);
+
+                        if (!CommonUtils.isEmpty(resultZbar)) {
+                            Bundle extras = new Bundle();
+                            extras.putInt(DecodeThread.DECODE_MODE, DecodeUtils.DECODE_MODE_ZBAR);
+
+                            handleDecode(resultZbar, extras);
+                        } else if (!CommonUtils.isEmpty(resultZxing)) {
+                            Bundle extras = new Bundle();
+                            extras.putInt(DecodeThread.DECODE_MODE, DecodeUtils.DECODE_MODE_ZXING);
+
+                            handleDecode(resultZxing, extras);
+                        } else {
+                            Snackbar.make(CaptureActivity.this.getWindow().getDecorView(),"未解析到任何数据",Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onLoadingCancelled(String imageUri, View view) {
+
+                    }
+                });
             }
         }
     }

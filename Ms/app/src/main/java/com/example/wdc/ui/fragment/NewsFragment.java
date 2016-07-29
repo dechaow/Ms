@@ -1,15 +1,19 @@
 package com.example.wdc.ui.fragment;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.example.wdc.adapter.NewsListAdapter;
 import com.example.wdc.bean.news.NewsBean;
 import com.example.wdc.bean.news.NewsListBean;
 import com.example.wdc.event.NewsOnItemClick;
+import com.example.wdc.event.ImagePushClick;
+import com.example.wdc.event.NewsPushClick;
 import com.example.wdc.ms.R;
 import com.example.wdc.presenter.NewsPresenter;
 import com.example.wdc.presenter.impl.NewsPresenterImpl;
@@ -21,6 +25,9 @@ import com.example.wdc.view.NewsView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -36,10 +43,14 @@ public class NewsFragment extends BaseFragment implements NewsView{
 
     public static NewsListAdapter adapter;
     private NewsPresenter mPresenter;
-    private NewsListBean listData;
+    private List<NewsBean> listData;
     private LinearLayoutManager manager;
 
     public static final String NEWS_DETAILS_KEY = "news";
+
+    private Boolean isScroll = false;//记录recyclerview是否在滑动
+    private int listSize;
+    private Long dateNum = 0L;
 
     @Override
     protected void onFirstUserVisible() {
@@ -61,30 +72,25 @@ public class NewsFragment extends BaseFragment implements NewsView{
     @Override
     protected void initViewsAndEvents() {
         mPresenter = new NewsPresenterImpl(getActivity(),this);
-        mPresenter.loadListData(DateUtils.getDate());
-        listData = new NewsListBean();
+        mPresenter.loadListData(DateUtils.getDate(),true);
+        listData = new ArrayList<>();
         manager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            /**
+             * newState
+             * 0 停止滑动 SCROLL_STATE_IDLE
+             * 1 手按住滑动 SCROLL_STATE_DRAGGING
+             * 2 手松开了但是还在滑动 SCROLL_STATE_SETTLING
+             */
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                System.out.println("recyclerView newState --------------------" + newState);
-                /**
-                 * newState
-                 * 0 停止滑动
-                 * 1 手按住滑动
-                 * 2 手松开了但是还在滑动
-                 */
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                /**
-                 * dx
-                 * dy
-                 */
-                System.out.println("recyclerView manager -----------------" + manager.findFirstCompletelyVisibleItemPosition() + "/////   " + manager.getChildCount());
-                System.out.println("recyclerView dx = " + dx + "dy = " + dy + "  --------------------------");
+                int count = manager.getChildCount() + manager.findFirstVisibleItemPosition();
+                if ( (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) &&  (count == (listSize+1)) && (listSize!=0)){
+                    Snackbar.make(getActivity().getWindow().getDecorView(),"加载更多",Snackbar.LENGTH_SHORT).show();
+                    dateNum--;
+                    mPresenter.loadListData(DateUtils.getOtherDate(dateNum),false);
+                }
             }
         });
 
@@ -96,7 +102,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
         mLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mPresenter.loadListData(DateUtils.getDate());
+                mPresenter.loadListData(DateUtils.getDate(),true);
             }
         });
 
@@ -117,14 +123,20 @@ public class NewsFragment extends BaseFragment implements NewsView{
     @Override
     public void addRefreshData(NewsListBean data) {
         mLayout.setRefreshing(false);
-        listData = data;
+        listData = data.getStories();
+        listSize = data.getStories().size();
         adapter = new NewsListAdapter(getActivity(),listData);
         mRecyclerView.setAdapter(adapter);
     }
 
     @Override
     public void addLoadMoreData(NewsListBean data) {
-
+        if(data.getStories().size() == 0){
+            mRecyclerView.removeViewAt(mRecyclerView.getChildCount()-1);
+        }
+        listData.addAll(data.getStories());
+        listSize += data.getStories().size();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -137,5 +149,10 @@ public class NewsFragment extends BaseFragment implements NewsView{
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(NewsOnItemClick click){
         mPresenter.onItemClickListener(click.newsBean);
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onEvent(NewsPushClick click){
+        mPresenter.loadListData(DateUtils.getDate(),true);
     }
 }

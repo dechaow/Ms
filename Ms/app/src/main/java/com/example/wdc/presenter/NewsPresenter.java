@@ -9,6 +9,6 @@ public interface NewsPresenter{
 
     void onItemClickListener(NewsBean newsBean);
 
-    void loadListData(String date);
+    void loadListData(String date,Boolean isRefresh);
 
 }

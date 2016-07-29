@@ -12,7 +12,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@mipmap/app_icon"
-        wdc:border_width="2dp"
+        wdc:border_width="1dp"
         wdc:border_color="@color/colorTitleText"
         android:layout_centerInParent="true"
         android:layout_marginLeft="40dp"
@@ -20,7 +20,7 @@
     <TextView
         android:id="@+id/nav_name"
         style="@style/textName"
-        android:text="name"
+        android:text="Ms"
         android:layout_below="@id/nav_icon"
         android:layout_centerHorizontal="true"
         />

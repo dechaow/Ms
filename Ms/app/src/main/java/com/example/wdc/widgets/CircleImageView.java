@@ -14,14 +14,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.example.wdc.ms.R;
 
-class CircleImageView extends ImageView {
+public class CircleImageView extends ImageView {
 
 
     private static final ScaleType SCALE_TYPE = ScaleType.CENTER_CROP;
