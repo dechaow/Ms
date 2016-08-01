@@ -29,6 +29,7 @@ import com.example.wdc.widgets.SpacesItemDecoration;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -91,6 +92,9 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
 
     @Override
     protected void initViewsAndEvents() {
+        mImagesBean = new ArrayList<>();
+        mAdapter = new ImageListAdapter(this,mImagesBean,mScreenWidth);
+        mRecyclerView.setAdapter(mAdapter);
         mReLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -127,26 +131,17 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
 
     @Override
     public void showImagesData(ImagesBean bean) {
-        mImagesBean = bean.getImgs();
+        mImagesBean.clear();
+        mImagesBean.addAll(bean.getImgs());
         listSize = mImagesBean.size();
         mReLayout.setRefreshing(false);
-        if (mAdapter != null){
-            mAdapter.notifyDataSetChanged();
-            mRecyclerView.setHasFixedSize(true);
-            listSize += mImagesBean.size();
-        }else{
-            mAdapter = new ImageListAdapter(this,mImagesBean,mScreenWidth);
-            mRecyclerView.setAdapter(mAdapter);
-        }
-
-
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void showMoreImagesData(ImagesBean bean) {
         mImagesBean.addAll(bean.getImgs());
         mAdapter.notifyDataSetChanged();
-        mRecyclerView.setHasFixedSize(true);
         listSize = mImagesBean.size();
     }
 
