@@ -1,6 +1,8 @@
 package com.example.wdc.ui.fragment;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -8,6 +10,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.example.wdc.adapter.ImageListAdapter;
@@ -109,7 +112,6 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 int count = findMax(manager.findLastVisibleItemPositions(new int[manager.getSpanCount()]));
-                System.out.println(listSize + " <- listSize   " + count + " <- count");
                 if ( (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) &&  (count == (listSize-1)) && (listSize!=0)){
                     Snackbar.make(getActivity().getWindow().getDecorView(),"加载更多",Snackbar.LENGTH_SHORT).show();
                     page ++;

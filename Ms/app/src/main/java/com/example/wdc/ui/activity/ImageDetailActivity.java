@@ -46,7 +46,6 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
             y = extras.getInt(ImagesFragment.KEY_IMG_Y);
             width = extras.getInt(ImagesFragment.KEY_IMG_WIDTH);
             height = extras.getInt(ImagesFragment.KEY_IMG_HEIGHT);
-
         }
         setTheme(R.style.DefaultTheme_ImageDetailTheme);
     }

@@ -1,6 +1,7 @@
 package com.example.wdc.adapter;
 
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
@@ -70,12 +71,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Glide.with(context)
                         .load(url)
                         .centerCrop()
-                        .placeholder(R.mipmap.app_icon)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)//磁盘缓存
                         .error(R.mipmap.app_icon)
                         .skipMemoryCache(false)
                         .into(((ImagesViewHolder)holder).img);
-                RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                CardView.LayoutParams params = new CardView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 if (width != 0){
                     params.height = mScreenWidth/width*height;
                 }

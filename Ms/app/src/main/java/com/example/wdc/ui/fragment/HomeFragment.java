@@ -60,6 +60,7 @@ public class HomeFragment extends BaseFragment implements HomeView{
     protected void initViewsAndEvents() {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
+        activity.getDelegate().getSupportActionBar().setDisplayShowCustomEnabled(true);
         activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         activity.getDelegate().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mPresenter = new HomePresenterImpl(getActivity(),this);

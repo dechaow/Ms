@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -93,7 +94,6 @@ public class NewsFragment extends BaseFragment implements NewsView{
                 }
             }
         });
-
         if (PrefUtil.getTheme() == R.style.DefaultTheme){
             mLayout.setColorSchemeResources(R.color.colorBase);
         } else if (PrefUtil.getTheme() == R.style.NightTheme) {

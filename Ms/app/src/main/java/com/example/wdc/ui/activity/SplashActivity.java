@@ -1,9 +1,15 @@
 package com.example.wdc.ui.activity;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.wdc.ms.R;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
@@ -38,6 +44,8 @@ public class SplashActivity extends BaseAppCompatActivity{
 
     @Override
     protected void initViewsAndEvents() {
+        //申请权限
+        applicationPermission();
         titanic = new Titanic();
         titanic.start(myTitanicTextView);
         new Thread(runnable).start();
@@ -102,4 +110,27 @@ public class SplashActivity extends BaseAppCompatActivity{
         super.onPause();
         titanic.cancel();
     }
+
+    protected void applicationPermission(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA},1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == 1){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this,"permissions",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(this,"权限不足",Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
+
 }

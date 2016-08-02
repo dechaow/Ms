@@ -2,13 +2,18 @@
 
 package com.example.wdc.ui.activity.base;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Layout;
 import android.util.DisplayMetrics;
@@ -20,6 +25,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.wdc.ms.R;
 import com.example.wdc.loading.VaryViewHelperController;
@@ -91,6 +97,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
             }
         }
         super.onCreate(savedInstanceState);
+
         //设置theme
         setTheme(PrefUtil.getTheme());
         // base setup
@@ -519,6 +526,5 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
         int count = view.getChildCount();
         view.removeView(view.getChildAt(count - 1));
     }
-
 
 }

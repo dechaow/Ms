@@ -66,7 +66,7 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
         toolbar.setTitle("");
         CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) toolbar.getLayoutParams();
         params.height = CommonUtils.getToolbarHeight(this) + CommonUtils.getStatusBarHeight(this);
-        toolbar.setPadding(0,(int)(DensityUtil.px2dip(this,CommonUtils.getStatusBarHeight(this))*1.2),0,0);
+        toolbar.setPadding(0,(int)(DensityUtil.px2dip(this,CommonUtils.getStatusBarHeight(this))),0,0);
         toolbar.setLayoutParams(params);
         toolbar.setTitleTextColor(getResources().getColor(R.color.colorTitleText));
         mPresenter = new NewsDetailsPresenterImpl(this,this);

@@ -1,5 +1,6 @@
 package com.example.wdc.ui.activity;
 
+import android.graphics.Rect;
 import android.support.v4.app.Fragment;
 
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 
 import com.example.wdc.ms.R;
@@ -18,6 +20,8 @@ import com.example.wdc.presenter.impl.MainPresenterImpl;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.fragment.DrawerFragment;
 import com.example.wdc.ui.fragment.HomeFragment;
+import com.example.wdc.ui.fragment.ImagesFragment;
+import com.example.wdc.ui.fragment.NewsFragment;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.utils.PrefUtil;
 import com.example.wdc.view.MainView;
@@ -32,10 +36,14 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
 
     @BindView(R.id.main_drawer_layout)
     protected DrawerLayout mDrawerLayout;
+    @BindView(R.id.main_drawer)
+    protected FrameLayout drawer;
+    @BindView(R.id.main_frame)
+    protected FrameLayout main;
 
-
+    HomeFragment homeFragment;
+    DrawerFragment drawerFragment;
     private Presenter mPresenter;
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -87,6 +95,8 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
     @Override
     protected void initViewsAndEvents() {
         mPresenter = new MainPresenterImpl(this,this);
+        homeFragment = new HomeFragment();
+        drawerFragment = new DrawerFragment();
         mPresenter.initialized();
 
     }
@@ -128,7 +138,7 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
 
     @Override
     public void showFragment(Fragment fragment) {
-        FragmentTransaction mTransaction =getSupportFragmentManager().beginTransaction();
+        FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
         if (fragment != null){
             mTransaction.remove(fragment);
         }
@@ -138,7 +148,7 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
 
     @Override
     public void addDrawerFragment(Fragment fragment) {
-        FragmentTransaction mTransaction =getSupportFragmentManager().beginTransaction();
+        FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
         if (fragment != null){
             mTransaction.remove(fragment);
         }
