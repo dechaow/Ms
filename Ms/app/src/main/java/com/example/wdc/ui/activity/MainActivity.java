@@ -95,8 +95,6 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
     @Override
     protected void initViewsAndEvents() {
         mPresenter = new MainPresenterImpl(this,this);
-        homeFragment = new HomeFragment();
-        drawerFragment = new DrawerFragment();
         mPresenter.initialized();
 
     }
@@ -139,20 +137,23 @@ public class MainActivity extends BaseAppCompatActivity implements MainView{
     @Override
     public void showFragment(Fragment fragment) {
         FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
-        if (fragment != null){
-            mTransaction.remove(fragment);
+        if (homeFragment != null){
+            mTransaction.remove(homeFragment);
         }
-        mTransaction.replace(R.id.main_frame,fragment);
+        homeFragment = HomeFragment.newInstance();
+        mTransaction.replace(R.id.main_frame,homeFragment);
         mTransaction.commit();
+
     }
 
     @Override
     public void addDrawerFragment(Fragment fragment) {
         FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
-        if (fragment != null){
-            mTransaction.remove(fragment);
+        if (drawerFragment != null){
+            mTransaction.remove(drawerFragment);
         }
-        mTransaction.replace(R.id.main_drawer,fragment);
+        drawerFragment = DrawerFragment.newInstance();
+        mTransaction.replace(R.id.main_drawer,drawerFragment);
         mTransaction.commit();
     }
 

@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -21,6 +25,8 @@ import com.example.wdc.utils.CommonUtils;
 import com.example.wdc.utils.DensityUtil;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.view.NewsDetailsView;
+
+import java.lang.annotation.Target;
 
 import butterknife.BindView;
 
@@ -44,6 +50,15 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     private NewsDetailsPresenter mPresenter;
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.onBackPressed();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
     protected void getBundleExtras(Bundle extras) {
         if (null != extras){
             bean = extras.getParcelable(NewsFragment.NEWS_DETAILS_KEY);
@@ -59,14 +74,13 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     protected View getLoadingTargetView() {
         return webView;
     }
-
     @Override
     protected void initViewsAndEvents() {
         toolbar.setBackgroundResource(android.R.color.transparent);
         toolbar.setTitle("");
         CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) toolbar.getLayoutParams();
+        toolbar.setPadding(0,CommonUtils.getStatusBarHeight(this),0,0);
         params.height = CommonUtils.getToolbarHeight(this) + CommonUtils.getStatusBarHeight(this);
-        toolbar.setPadding(0,(int)(DensityUtil.px2dip(this,CommonUtils.getStatusBarHeight(this))),0,0);
         toolbar.setLayoutParams(params);
         toolbar.setTitleTextColor(getResources().getColor(R.color.colorTitleText));
         mPresenter = new NewsDetailsPresenterImpl(this,this);
@@ -105,7 +119,7 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
 
     @Override
     protected Boolean isAddStatusHeight() {
-        return false;
+        return true;
     }
 
 

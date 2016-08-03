@@ -22,6 +22,7 @@ import com.example.wdc.ui.fragment.base.BaseFragment;
 import com.example.wdc.utils.DateUtils;
 import com.example.wdc.utils.PrefUtil;
 import com.example.wdc.view.NewsView;
+import com.example.wdc.widgets.SpacesItemDecoration;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -77,6 +78,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
         listData = new ArrayList<>();
         manager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(manager);
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(40));
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             /**
              * newState
@@ -88,7 +90,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 int count = manager.getChildCount() + manager.findFirstVisibleItemPosition();
                 if ( (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) &&  (count == (listSize+1)) && (listSize!=0)){
-                    Snackbar.make(getActivity().getWindow().getDecorView(),"加载更多",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getActivity().getCurrentFocus(),"加载更多",Snackbar.LENGTH_SHORT).show();
                     dateNum--;
                     mPresenter.loadListData(DateUtils.getOtherDate(dateNum),false);
                 }
@@ -155,4 +157,9 @@ public class NewsFragment extends BaseFragment implements NewsView{
     public void onEvent(NewsPushClick click){
         mPresenter.loadListData(DateUtils.getDate(),true);
     }
+
+    public static NewsFragment newInstance(){
+        return new NewsFragment();
+    }
+
 }

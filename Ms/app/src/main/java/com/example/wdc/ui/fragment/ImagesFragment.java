@@ -64,7 +64,7 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
     protected void onFirstUserVisible() {
         manager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(manager);
-        mRecyclerView.addItemDecoration(new SpacesItemDecoration(5));
+        mRecyclerView.addItemDecoration(new SpacesItemDecoration(20));
         mPresenter = new ImagesPresenterImpl(getActivity(),this);
         try {
             mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,0, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,true);
@@ -113,7 +113,7 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 int count = findMax(manager.findLastVisibleItemPositions(new int[manager.getSpanCount()]));
                 if ( (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) &&  (count == (listSize-1)) && (listSize!=0)){
-                    Snackbar.make(getActivity().getWindow().getDecorView(),"加载更多",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(getActivity().getCurrentFocus(),"加载更多",Snackbar.LENGTH_SHORT).show();
                     page ++;
                     mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,page, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,false);
                 }
@@ -177,5 +177,8 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
             }
         }
         return max;
+    }
+    public static ImagesFragment newInstance(){
+        return new ImagesFragment();
     }
 }

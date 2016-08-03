@@ -123,4 +123,7 @@ public class HomeFragment extends BaseFragment implements HomeView{
             }
         });
     }
+    public static HomeFragment newInstance(){
+        return new HomeFragment();
+    }
 }

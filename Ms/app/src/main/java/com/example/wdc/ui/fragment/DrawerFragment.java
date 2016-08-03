@@ -83,4 +83,8 @@ public class DrawerFragment extends BaseFragment implements NavigationView.OnNav
 
         return true;
     }
+
+    public static DrawerFragment newInstance(){
+      return new DrawerFragment();
+    }
 }

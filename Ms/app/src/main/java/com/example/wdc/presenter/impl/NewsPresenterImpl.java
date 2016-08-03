@@ -63,7 +63,7 @@ public class NewsPresenterImpl implements NewsPresenter,INetResult<NewsListBean>
     public void onErro(String erro) {
         mNewsView.hideLoading();
         mNewsView.showErro(erro);
-        Snackbar.make(((Activity)context).getWindow().getDecorView(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
+        Snackbar.make(((Activity)context).getCurrentFocus(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EventBus.getDefault().post(new NewsPushClick());

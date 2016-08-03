@@ -1,6 +1,7 @@
 package com.example.wdc.presenter.impl;
 
 import android.app.Activity;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 
 import com.example.wdc.interactor.MainInteractor;
@@ -28,5 +29,6 @@ public class MainPresenterImpl implements Presenter {
         Fragment fragment = mMainInteractor.getFragment();
         mMainView.showFragment(fragment);
         mMainView.addDrawerFragment(mMainInteractor.getDrawerFragment());
+
     }
 }

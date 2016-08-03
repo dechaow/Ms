@@ -13,30 +13,20 @@
         android:layout_height="match_parent"
         tools:openDrawer="start"
         >
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#fcc"
-            >
+
             <FrameLayout
                 android:id="@+id/main_frame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:layout="@layout/fragment_home"></FrameLayout>
-        </RelativeLayout>
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="#ccf"
-        android:layout_gravity="start"
-        >
         <FrameLayout
             android:id="@+id/main_drawer"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_gravity="start"
             tools:layout="@layout/fragment_drawer"
             ></FrameLayout>
-    </RelativeLayout>
+
 
     </android.support.v4.widget.DrawerLayout>
 </LinearLayout>

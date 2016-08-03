@@ -59,7 +59,7 @@ public class ImagesPresenterImpl implements ImagesPresenter,INetResult<ImagesBea
     public void onErro(String erro) {
 //        mImagesView.hideLoading();
         mImagesView.showErro(erro);
-        Snackbar.make(((Activity)context).getWindow().getDecorView(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
+        Snackbar.make(((Activity)context).getCurrentFocus(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EventBus.getDefault().post(new ImagePushClick());

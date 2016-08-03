@@ -16,6 +16,7 @@ import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.event.ImageOnClick;
 import com.example.wdc.ms.R;
 import com.example.wdc.utils.CommonUtils;
+import com.example.wdc.utils.NetUtils;
 import com.example.wdc.widgets.MateialProgressBar;
 import com.example.wdc.widgets.SmoothImageView;
 
@@ -89,9 +90,10 @@ public class ImageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         location[1] += statusBarHeight;
                         int width = v.getWidth();
                         int height = v.getHeight();
-                        if (position < imagesBean.size()){
+                        if (position < imagesBean.size() && (imagesBean.get(position).getThumbnailUrl() != null) && NetUtils.isNetworkConnected(context.getContext())){
                             EventBus.getDefault().post(new ImageOnClick(imagesBean.get(position),location[0],location[1],width,height));
                         }
+
                     }
                 });
             }
