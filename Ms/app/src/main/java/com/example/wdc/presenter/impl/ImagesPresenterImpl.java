@@ -8,6 +8,9 @@ import android.view.View;
 import com.example.wdc.bean.images.ImagesBean;
 import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.event.ImagePushClick;
+import com.example.wdc.event.ImagesStartRefresh;
+import com.example.wdc.event.ImagesStopRefresh;
+import com.example.wdc.event.NewsStopRefresh;
 import com.example.wdc.interactor.ImagesInteractor;
 import com.example.wdc.interactor.impl.ImagesInteractorImpl;
 import com.example.wdc.presenter.ImagesPresenter;
@@ -46,7 +49,6 @@ public class ImagesPresenterImpl implements ImagesPresenter,INetResult<ImagesBea
 
     @Override
     public void onSuccess(ImagesBean result) {
-//        mImagesView.hideLoading();
         if (isRefresh){
             mImagesView.showImagesData(result);
         }else{
@@ -57,11 +59,11 @@ public class ImagesPresenterImpl implements ImagesPresenter,INetResult<ImagesBea
 
     @Override
     public void onErro(String erro) {
-//        mImagesView.hideLoading();
-        mImagesView.showErro(erro);
+        EventBus.getDefault().post(new ImagesStopRefresh());
         Snackbar.make(((Activity)context).getCurrentFocus(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                EventBus.getDefault().post(new ImagesStartRefresh());
                 EventBus.getDefault().post(new ImagePushClick());
             }
         }).show();
@@ -70,6 +72,5 @@ public class ImagesPresenterImpl implements ImagesPresenter,INetResult<ImagesBea
 
     @Override
     public void onException(String exception) {
-        mImagesView.showException(exception);
     }
 }

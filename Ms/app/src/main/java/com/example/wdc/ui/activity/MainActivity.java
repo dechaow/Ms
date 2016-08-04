@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import com.example.wdc.ms.R;
 import com.example.wdc.presenter.Presenter;
 import com.example.wdc.presenter.impl.MainPresenterImpl;
+import com.example.wdc.ui.activity.base.BaseActivity;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.fragment.DrawerFragment;
 import com.example.wdc.ui.fragment.HomeFragment;
@@ -31,7 +32,7 @@ import butterknife.BindView;
 /**
  * Created by wdc on 2016/7/20.
  */
-public class MainActivity extends BaseAppCompatActivity implements MainView{
+public class MainActivity extends BaseActivity implements MainView{
 
 
     @BindView(R.id.main_drawer_layout)

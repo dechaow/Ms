@@ -1,16 +1,11 @@
 package com.example.wdc.ui.fragment;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import com.example.wdc.adapter.ImageListAdapter;
@@ -18,12 +13,15 @@ import com.example.wdc.bean.images.ImagesBean;
 import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.event.ImageOnClick;
 import com.example.wdc.event.ImagePushClick;
+import com.example.wdc.event.ImagesStartRefresh;
+import com.example.wdc.event.ImagesStopRefresh;
+import com.example.wdc.event.NewsStartRefresh;
+import com.example.wdc.event.NewsStopRefresh;
 import com.example.wdc.ms.R;
 import com.example.wdc.presenter.ImagesPresenter;
 import com.example.wdc.presenter.impl.ImagesPresenterImpl;
 import com.example.wdc.ui.activity.ImageDetailActivity;
 import com.example.wdc.ui.fragment.base.BaseFragment;
-import com.example.wdc.utils.DateUtils;
 import com.example.wdc.utils.PrefUtil;
 import com.example.wdc.utils.UrlUtils;
 import com.example.wdc.view.ImagesView;
@@ -67,6 +65,7 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(20));
         mPresenter = new ImagesPresenterImpl(getActivity(),this);
         try {
+            mReLayout.setRefreshing(true);
             mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,0, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,true);
         }catch (Exception e){
             Log.d("load image",e.getMessage());
@@ -159,6 +158,19 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
         getActivity().overridePendingTransition(0, 0);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ImagesStopRefresh refresh){
+        if (mReLayout != null){
+            mReLayout.setRefreshing(false);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ImagesStartRefresh refresh){
+        if (mReLayout != null){
+            mReLayout.setRefreshing(true);
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(ImageOnClick click){
@@ -166,6 +178,7 @@ public class ImagesFragment extends BaseFragment implements ImagesView{
     }
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onEvent(ImagePushClick click){
+        mReLayout.setRefreshing(true);
         mPresenter.loadImages(UrlUtils.IMAGES_URL_COL,UrlUtils.IMAGES_URL_TAG,page, UrlUtils.IMAGES_URL_RN,UrlUtils.IMAGES_URL_FROM,true);
     }
 

@@ -487,7 +487,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
             Window win = getWindow();
             win.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             // smoothbar 透明
-            win.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+//            win.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
             if (PrefUtil.getTheme() == R.style.NightTheme){
                 addStatusText(R.color.colorPrimary);
             }else if(PrefUtil.getTheme() == R.style.DefaultTheme){

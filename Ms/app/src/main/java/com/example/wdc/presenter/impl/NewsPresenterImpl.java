@@ -7,8 +7,9 @@ import android.view.View;
 
 import com.example.wdc.bean.news.NewsBean;
 import com.example.wdc.bean.news.NewsListBean;
-import com.example.wdc.event.ImagePushClick;
 import com.example.wdc.event.NewsPushClick;
+import com.example.wdc.event.NewsStartRefresh;
+import com.example.wdc.event.NewsStopRefresh;
 import com.example.wdc.interactor.NewsInteractor;
 import com.example.wdc.interactor.impl.NewsInteractorImpl;
 import com.example.wdc.presenter.NewsPresenter;
@@ -42,16 +43,12 @@ public class NewsPresenterImpl implements NewsPresenter,INetResult<NewsListBean>
     @Override
     public void loadListData(String date,Boolean isRefresh) {
         mNewsInteractor.loadDate(context,date);
-        if (isRefresh){
-                    mNewsView.showLoading("正在加载...");
-        }
         this.isRefresh = isRefresh;
     }
 
 
     @Override
     public void onSuccess(NewsListBean result) {
-        mNewsView.hideLoading();
         if (isRefresh){
             mNewsView.addRefreshData(result);
         }else{
@@ -61,11 +58,11 @@ public class NewsPresenterImpl implements NewsPresenter,INetResult<NewsListBean>
 
     @Override
     public void onErro(String erro) {
-        mNewsView.hideLoading();
-        mNewsView.showErro(erro);
+        EventBus.getDefault().post(new NewsStopRefresh());
         Snackbar.make(((Activity)context).getCurrentFocus(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                EventBus.getDefault().post(new NewsStartRefresh());
                 EventBus.getDefault().post(new NewsPushClick());
             }
         }).show();
@@ -73,6 +70,5 @@ public class NewsPresenterImpl implements NewsPresenter,INetResult<NewsListBean>
 
     @Override
     public void onException(String exception) {
-        mNewsView.showException(exception);
     }
 }

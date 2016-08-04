@@ -5,15 +5,15 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.example.wdc.adapter.NewsListAdapter;
 import com.example.wdc.bean.news.NewsBean;
 import com.example.wdc.bean.news.NewsListBean;
 import com.example.wdc.event.NewsOnItemClick;
-import com.example.wdc.event.ImagePushClick;
 import com.example.wdc.event.NewsPushClick;
+import com.example.wdc.event.NewsStartRefresh;
+import com.example.wdc.event.NewsStopRefresh;
 import com.example.wdc.ms.R;
 import com.example.wdc.presenter.NewsPresenter;
 import com.example.wdc.presenter.impl.NewsPresenterImpl;
@@ -28,7 +28,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -56,6 +55,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
 
     @Override
     protected void onFirstUserVisible() {
+        mLayout.setRefreshing(true);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 int count = manager.getChildCount() + manager.findFirstVisibleItemPosition();
                 if ( (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) &&  (count == (listSize+1)) && (listSize!=0)){
-                    Snackbar.make(getActivity().getCurrentFocus(),"加载更多",Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(mLayout,"加载更多",Snackbar.LENGTH_SHORT).show();
                     dateNum--;
                     mPresenter.loadListData(DateUtils.getOtherDate(dateNum),false);
                 }
@@ -124,6 +124,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
 
     @Override
     public void addRefreshData(NewsListBean data) {
+        System.out.println(data + "< -------- ");
         mLayout.setRefreshing(false);
         listData = data.getStories();
         listSize = data.getStories().size();
@@ -133,6 +134,7 @@ public class NewsFragment extends BaseFragment implements NewsView{
 
     @Override
     public void addLoadMoreData(NewsListBean data) {
+        System.out.println(data + "< -------- ");
         if(data.getStories().size() == 0){
             mRecyclerView.removeViewAt(mRecyclerView.getChildCount()-1);
         }
@@ -147,6 +149,21 @@ public class NewsFragment extends BaseFragment implements NewsView{
         bundle.putParcelable(NEWS_DETAILS_KEY,newsBean);
         readyGo(NewsDetailsActivity.class,bundle);
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(NewsStopRefresh refresh){
+        if (mLayout != null){
+            mLayout.setRefreshing(false);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(NewsStartRefresh refresh){
+        if (mLayout != null){
+            mLayout.setRefreshing(true);
+        }
+    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(NewsOnItemClick click){
