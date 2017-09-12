@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:background="?attr/colorPrimary"
+    android:layout_height="192dp"
+    xmlns:wdc="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="20dp"
+    android:id="@+id/nav_header"
+    >
+    <com.example.wdc.widgets.CircleImageView
+        android:id="@+id/nav_icon"
+        android:layout_width="86dp"
+        android:layout_height="86dp"
+        android:src="@mipmap/app_icon"
+        wdc:border_width="1px"
+        wdc:border_color="@color/colorTitleText"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="40dp"
+        />
+    <TextView
+        android:id="@+id/nav_name"
+        style="@style/textName"
+        android:text="DeChao"
+        android:layout_below="@id/nav_icon"
+        android:layout_centerHorizontal="true"
+        />
+</RelativeLayout>
