@@ -1,28 +1,17 @@
 package com.example.wdc.ui.activity;
 
-import android.annotation.TargetApi;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.bumptech.glide.Glide;
-import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.ms.R;
-import com.example.wdc.ui.activity.base.BaseActivity;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.fragment.ImagesFragment;
 import com.example.wdc.utils.NetUtils;
-import com.example.wdc.widgets.SmoothImageView;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import butterknife.BindView;
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Created by wdc on 2016/7/26.
@@ -30,7 +19,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @BindView(R.id.imgdetail_smoothimgview)
-    protected SmoothImageView mSmoothImageView;
+    protected ImageView mSmoothImageView;
     @BindView(R.id.imagedetail_root)
     protected LinearLayout imagedetail_root;
 
@@ -42,7 +31,7 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @Override
     protected void getBundleExtras(Bundle extras) {
-        if (extras != null){
+        if (extras != null) {
             url = extras.getString(ImagesFragment.KEY_IMG_URL);
             x = extras.getInt(ImagesFragment.KEY_IMG_X);
             y = extras.getInt(ImagesFragment.KEY_IMG_Y);
@@ -61,34 +50,35 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
     protected View getLoadingTargetView() {
         return null;
     }
+
     @Override
     protected void initViewsAndEvents() {
         imagedetail_root.setBackgroundResource(android.R.color.transparent);
-        mSmoothImageView.setOriginalInfo(width, height, x, y);
-        mSmoothImageView.transformIn();
-        ImageLoader.getInstance().displayImage(url, mSmoothImageView);
+//        mSmoothImageView.setOriginalInfo(width, height, x, y);
+//        mSmoothImageView.transformIn();
+//        ImageLoader.getInstance().displayImage(url, mSmoothImageView);
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
+            getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
 
         //        Glide.with(this).load(url)
 //                .placeholder(drawable)
 //                .into(mSmoothImageView);
 
-        mSmoothImageView.setOnTransformListener(new SmoothImageView.TransformListener() {
-            @Override
-            public void onTransformComplete(int mode) {
-                if (mode == 2) {
-                    finish();
-                }
-            }
-        });
-        mSmoothImageView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
-            @Override
-            public void onPhotoTap(View view, float v, float v1) {
-                mSmoothImageView.transformOut();
-            }
-        });
+//        mSmoothImageView.setOnTransformListener(new SmoothImageView.TransformListener() {
+//            @Override
+//            public void onTransformComplete(int mode) {
+//                if (mode == 2) {
+//                    finish();
+//                }
+//            }
+//        });
+//        mSmoothImageView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+//            @Override
+//            public void onPhotoTap(View view, float v, float v1) {
+//                mSmoothImageView.transformOut();
+//            }
+//        });
     }
 
     @Override
@@ -128,7 +118,7 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        mSmoothImageView.transformOut();
+//        mSmoothImageView.transformOut();
     }
 
     @Override

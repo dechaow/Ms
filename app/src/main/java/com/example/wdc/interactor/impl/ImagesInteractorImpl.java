@@ -11,10 +11,10 @@ import com.example.wdc.utils.UrlUtils;
 
 import java.util.List;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * Created by wdc on 2016/7/26.
@@ -30,18 +30,19 @@ public class ImagesInteractorImpl implements ImagesInteractor {
     @Override
     public void loadImagesData(Context context,String col,String tag,int pn,int rn,int from) {
 
-        RetrofitManager.builder(context, UrlUtils.BASE_IMAGES_URL)
+        RetrofitManager.builder(UrlUtils.BASE_IMAGES_URL)
                 .getImages(col,tag,pn,rn,from)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<ImagesBean>() {
+                .subscribe(new Consumer<ImagesBean>() {
                     @Override
-                    public void call(ImagesBean bean) {
-                        result.onSuccess(bean);
+                    public void accept(ImagesBean imagesBean) throws Exception {
+                        result.onSuccess(imagesBean);
                     }
-                }, new Action1<Throwable>() {
+
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) throws Exception {
                         result.onErro(throwable.getMessage());
                     }
                 });

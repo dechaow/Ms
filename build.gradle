@@ -1,21 +1,75 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+/**
+ * gradle脚本执行所需的依赖
+ * 为gradle本身配置存储库和依赖关系
+ */
 buildscript {
+
+    /**
+     * 这里可以把项目所有的版本号存储在此位置
+     * 方便统一管理
+     */
+    ext.versions =[
+
+            //project config
+            'minSdkVersion' : 14,
+            'targetSdkVersion' : 26,
+            'versionCode' : 1,
+            'versionName' : 'versionName',
+            'buildToolsVersion' : '26.0.2',
+            'compileSdkVersion' : 26,
+
+            //library
+            'butterknife' : '8.8.1',
+            'supportLibrary' : '26.1.0',
+            'lifecycle' : '1.1.0',
+            'retrofit' : '2.3.0',
+            'okhttp' : '3.9.1',
+            'okio' : '1.13.0',
+            'rxjava' : '2.2.0-SNAPSHOT',
+            'rxandroid' : '2.0.1',
+            'gson' : '2.8.2',
+            'glide' : '4.6.1'
+
+    ]
+    /**
+     * 声明使用的存储库
+     * 就是gradle使用的远程库依赖
+     * 也就是我们所使用的库托管在远端的哪个网站上
+     * 也可以使用本地存储库或定义自己的远程存储库
+     */
     repositories {
         jcenter()
+        google()
         mavenCentral()
     }
+    /**
+     * 声明所使用的插件
+     * 这里使用了gradle插件和butterknife插件
+     * 为什么有的库需要添加plugin依赖，因为他们需要在编译时注入一些自己的代码
+     * 比如dagger也需要使用plugin来帮助我们编译时将注解翻译成代码
+     */
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath "com.jakewharton:butterknife-gradle-plugin:${versions.butterknife}"
     }
 }
 
+/**
+ * 配置项目中所有module（例如第三方插件或库）使用的存储库和依赖项
+ * 如果你使用自己的远程存储库，你需要加上你的url
+ */
 allprojects {
     repositories {
         jcenter()
+        google()
+        mavenCentral()
         maven {
             url "https://jitpack.io"
+        }
+        maven {
+            url 'https://oss.jfrog.org/libs-snapshot'
         }
     }
 }
