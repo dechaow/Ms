@@ -50,7 +50,7 @@ public class NewsFragment extends BaseFragment {
     public static final String NEWS_DETAILS_KEY = "news";
 
     private Long dateNum = 0L;
-    
+
 
     @Override
     protected void onFirstUserVisible() {
@@ -125,7 +125,6 @@ public class NewsFragment extends BaseFragment {
                 initItemDialog();
             }
         });
-
 
     }
 
