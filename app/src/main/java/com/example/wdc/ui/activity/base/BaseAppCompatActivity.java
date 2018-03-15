@@ -2,12 +2,18 @@
 
 package com.example.wdc.ui.activity.base;
 
+import android.app.ActivityManager;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.MenuItem;
@@ -89,6 +95,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
 //            }
 //        }
         super.onCreate(savedInstanceState);
+        setTaskDesc();
 
         mLifecycleRegistry = new LifecycleRegistry(this);
         //标记当前状态
@@ -457,5 +464,25 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;
+    }
+
+    /**
+     * 设置进程任务栏的样式
+     */
+    protected void setTaskDesc(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            Drawable drawable = ContextCompat.getDrawable(this,getApplicationInfo().icon);
+            Bitmap bitmap = drawable2Bitmap(drawable);
+            this.setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name),bitmap));
+            bitmap.recycle();
+        }
+    }
+
+    private Bitmap drawable2Bitmap(Drawable drawable){
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight(), Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0,0,canvas.getWidth(),canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
 }

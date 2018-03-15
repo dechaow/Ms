@@ -81,31 +81,12 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
 
-
             final NewsBean newsBean = bean.get(position);
 
             final List<String> imgs = newsBean.getImages();
             itemViewHolder.mBinding.setNews(newsBean);
 
-            itemViewHolder.mBinding.setClick(mNewsViewModel);
-
-            itemViewHolder.mBinding.setLongClick(mNewsViewModel);
-
-            Observable.just(imgs)
-                    .filter(new Predicate<List<String>>() {
-                        @Override
-                        public boolean test(List<String> strings) throws Exception {
-                            return strings.size()>0;
-                        }
-                    })
-                    .subscribe(new Consumer<List<String>>() {
-                        @Override
-                        public void accept(List<String> strings) throws Exception {
-                            Glide.with(itemViewHolder.itemView.getContext())
-                                    .load(strings.get(0))
-                                    .into(itemViewHolder.img);
-                        }
-                    });
+            itemViewHolder.mBinding.setModel(mNewsViewModel);
 
         }
 

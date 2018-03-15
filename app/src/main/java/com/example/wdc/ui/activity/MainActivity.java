@@ -77,6 +77,7 @@ public class MainActivity extends BaseActivity implements MainView {
                     getWindow().setStatusBarColor(getResources().getColor(getColorByAttributeId(R.attr.status_bar_color)));
                 }
                 Snackbar.make(mDrawerLayout, "主题已切换", Snackbar.LENGTH_SHORT).show();
+                setTaskDesc();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -110,6 +111,8 @@ public class MainActivity extends BaseActivity implements MainView {
     protected void initViewsAndEvents() {
         mPresenter = new MainPresenterImpl(this, this);
         mPresenter.initialized();
+
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
 
         File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/ms.txt");

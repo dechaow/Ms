@@ -10,6 +10,7 @@
         android:id="@+id/common_toolbar"
         app:theme="@style/MyToolBar"
         app:layout_collapseMode="pin"
+        android:paddingTop="@dimen/toolbar_padding"
         ></android.support.v7.widget.Toolbar>
 
 </merge>

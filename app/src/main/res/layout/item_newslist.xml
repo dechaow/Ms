@@ -3,12 +3,8 @@
     <data>
 
         <variable
-            name="click"
-            type="com.example.wdc.ui.fragment.news.OnItemClickListener"/>
-
-        <variable
-            name="longClick"
-            type="com.example.wdc.ui.fragment.news.OnItemLongClickListener"/>
+            name="model"
+            type="com.example.wdc.ui.fragment.news.NewsViewModel"/>
 
         <variable
             name="news"
@@ -27,8 +23,8 @@
         android:clickable="true"
         android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="2dp"
-        android:onClick="@{() ->click.onItemClick(news)}"
-        android:onLongClick="@{() ->longClick.longClick(news)}"
+        android:onClick="@{() ->model.onItemClick(news)}"
+        android:onLongClick="@{() ->model.longClick(news)}"
         app:cardElevation="2dp">
 
         <RelativeLayout
@@ -42,6 +38,7 @@
                 android:layout_centerVertical="true"
                 android:layout_margin="10dp"
                 android:background="@mipmap/app_icon"
+                app:imageUrl="@{news.images.size > 0 ? news.images[0] : null}"
                 android:scaleType="fitXY" />
 
             <TextView

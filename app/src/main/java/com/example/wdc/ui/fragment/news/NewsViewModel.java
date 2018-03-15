@@ -37,7 +37,7 @@ import io.reactivex.schedulers.Schedulers;
  * @E-mail:mail2dechao@gmail.com
  */
 
-public class NewsViewModel extends AndroidViewModel implements LifecycleObserver,OnItemClickListener,OnItemLongClickListener{
+public class NewsViewModel extends AndroidViewModel implements LifecycleObserver{
 
     //observer对象，是databinding中的东西，如果我们在layout中引用了此viewModel,并且使用的是该数据，那么这个数据改变的时候就会对应的view状态就会改变
     private final ObservableList<NewsBean> mNewsListData = new ObservableArrayList<>();
@@ -53,7 +53,7 @@ public class NewsViewModel extends AndroidViewModel implements LifecycleObserver
 
     private boolean mCanLoad;
 
-    //这里使用application的引用为什么可以防止内存泄露？
+    //这里使用application的引用可以防止内存泄露
     public NewsViewModel(@NonNull Application application) {
         super(application);
         System.out.println("NewsViewModel.NewsViewModel  " + application + "      " + application.getApplicationContext());
@@ -61,10 +61,6 @@ public class NewsViewModel extends AndroidViewModel implements LifecycleObserver
         getData(DateUtils.getDate());
     }
 
-    @Override
-    public void onItemClick(NewsBean bean) {
-        clickBoolean.postValue(bean);
-    }
 
     public LiveData<NewsListBean> getNewsData() {
         return newsData;
@@ -104,7 +100,6 @@ public class NewsViewModel extends AndroidViewModel implements LifecycleObserver
                 });
     }
 
-
     public boolean isCanLoad() {
         return mCanLoad;
     }
@@ -113,7 +108,10 @@ public class NewsViewModel extends AndroidViewModel implements LifecycleObserver
         this.mCanLoad = mCanLoad;
     }
 
-    @Override
+    public void onItemClick(NewsBean bean) {
+        clickBoolean.postValue(bean);
+    }
+
     public boolean longClick(NewsBean bean) {
         longClickBoolean.postValue(bean);
         return true;
