@@ -1,17 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="200dp"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="3dp"
-    app:cardElevation="5dp">
-    <ImageView
+    xmlns:bind="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="bean"
+            type="com.example.wdc.bean.images.ImagesListBean"/>
+
+        <variable
+            name="model"
+            type="com.example.wdc.ui.fragment.images.ImagesViewModel"/>
+    </data>
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/imagelist_img"
-        android:scaleType="centerCrop"
-        android:layout_margin="1dp"
-        >
-    </ImageView>
-</android.support.v7.widget.CardView>
+        android:layout_height="200dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="4dp"
+        android:descendantFocusability="blocksDescendants"
+        app:cardElevation="2dp">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imagelist_img"
+            android:scaleType="centerCrop"
+            android:layout_margin="1dp"
+            android:onClick="@{(view) -> model.onImageClick(view,bean)}"
+            app:imageUrl="@{bean.thumbnailUrl}"
+            >
+        </ImageView>
+    </android.support.v7.widget.CardView>
+
+</layout>

@@ -1,14 +1,18 @@
 package com.example.wdc.bean.news;
 
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.example.wdc.ms.BR;
 
 import java.util.List;
 
 /**
  * Created by wdc on 2016/7/22.
  */
-public class NewsBean implements Parcelable {
+public class NewsBean extends BaseObservable implements Parcelable {
     private int type;
     private int id;
     private String ga_prefix;
@@ -17,44 +21,55 @@ public class NewsBean implements Parcelable {
     private Boolean isRead = false;
     private String date;
 
+    @Bindable
     public int getType() {
         return type;
     }
 
     public void setType(int type) {
         this.type = type;
+        notifyPropertyChanged(BR.type);
     }
 
+    @Bindable
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
+        notifyPropertyChanged(BR.id);
     }
 
+    @Bindable
     public String getGa_prefix() {
         return ga_prefix;
     }
 
     public void setGa_prefix(String ga_prefix) {
         this.ga_prefix = ga_prefix;
+        notifyPropertyChanged(BR.ga_prefix);
     }
 
+    @Bindable
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+        System.out.println("NewsBean.setTitle    " + title);
+        notifyPropertyChanged(BR.title);
     }
 
+    @Bindable
     public List<String> getImages() {
         return images;
     }
 
     public void setImages(List<String> images) {
         this.images = images;
+        notifyPropertyChanged(BR.images);
     }
 
     @Override

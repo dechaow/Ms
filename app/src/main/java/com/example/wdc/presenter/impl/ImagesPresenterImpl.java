@@ -17,7 +17,6 @@ import com.example.wdc.presenter.ImagesPresenter;
 import com.example.wdc.server.INetResult;
 import com.example.wdc.view.ImagesView;
 
-import org.greenrobot.eventbus.EventBus;
 
 /**
  * Created by wdc on 2016/7/26.
@@ -59,14 +58,14 @@ public class ImagesPresenterImpl implements ImagesPresenter,INetResult<ImagesBea
 
     @Override
     public void onErro(String erro) {
-        EventBus.getDefault().post(new ImagesStopRefresh());
-        Snackbar.make(((Activity)context).getCurrentFocus(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EventBus.getDefault().post(new ImagesStartRefresh());
-                EventBus.getDefault().post(new ImagePushClick());
-            }
-        }).show();
+//        EventBus.getDefault().post(new ImagesStopRefresh());
+//        Snackbar.make(((Activity)context).getCurrentFocus(),"网络链接失败！",Snackbar.LENGTH_INDEFINITE).setAction("刷新", new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                EventBus.getDefault().post(new ImagesStartRefresh());
+//                EventBus.getDefault().post(new ImagePushClick());
+//            }
+//        }).show();
 
     }
 

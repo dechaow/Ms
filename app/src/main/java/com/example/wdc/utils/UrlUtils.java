@@ -15,6 +15,6 @@ public class UrlUtils  {
 
     public final static int IMAGES_URL_FROM = 1;
 
-    public final static int IMAGES_URL_RN = 20;
+    public final static int IMAGES_URL_RN = 10;
 
 }

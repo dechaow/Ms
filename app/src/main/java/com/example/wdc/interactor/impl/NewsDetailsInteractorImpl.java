@@ -8,9 +8,10 @@ import com.example.wdc.retrofit.manager.RetrofitManager;
 import com.example.wdc.server.INetResult;
 import com.example.wdc.utils.UrlUtils;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * Created by wdc on 2016/7/25.
@@ -25,18 +26,19 @@ public class NewsDetailsInteractorImpl implements NewsDetailsInteractor {
 
     @Override
     public void LoadDetailsData(Context context,int id) {
-        RetrofitManager.builder(context, UrlUtils.BASE_NEWS_URL)
+        RetrofitManager.builder(UrlUtils.BASE_NEWS_URL)
                 .getNewsDetails(id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<NewsDetailsBean>() {
+                .subscribe(new Consumer<NewsDetailsBean>() {
                     @Override
-                    public void call(NewsDetailsBean newsDetailsBean) {
+                    public void accept(NewsDetailsBean newsDetailsBean) throws Exception {
                         result.onSuccess(newsDetailsBean);
                     }
-                }, new Action1<Throwable>() {
+
+                }, new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) throws Exception {
                         result.onErro(throwable.getMessage());
                     }
                 });

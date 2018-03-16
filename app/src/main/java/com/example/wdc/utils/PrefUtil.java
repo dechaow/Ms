@@ -3,7 +3,7 @@ package com.example.wdc.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.wdc.app.MyApp;
+import com.example.wdc.app.MsApp;
 import com.example.wdc.ms.R;
 
 /**
@@ -16,7 +16,7 @@ public class PrefUtil {
     private static final String PRE_THEME = "theme";
 
     private static SharedPreferences getSharedPreferences() {
-        return MyApp.getContext()
+        return MsApp.getContext()
                 .getSharedPreferences(PRE_NAME, Context.MODE_PRIVATE);
     }
 

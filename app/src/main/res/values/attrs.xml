@@ -23,4 +23,5 @@
         <enum name="defult" value="0"/>
         <enum name="theme1" value="1"/>
     </attr>
+
 </resources>

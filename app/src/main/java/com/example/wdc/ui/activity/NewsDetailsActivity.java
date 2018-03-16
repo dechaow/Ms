@@ -1,12 +1,13 @@
 package com.example.wdc.ui.activity;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -15,7 +16,6 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.wdc.bean.news.NewsBean;
 import com.example.wdc.bean.news.NewsDetailsBean;
 import com.example.wdc.ms.R;
@@ -23,19 +23,15 @@ import com.example.wdc.presenter.NewsDetailsPresenter;
 import com.example.wdc.presenter.impl.NewsDetailsPresenterImpl;
 import com.example.wdc.ui.activity.base.BaseActivity;
 import com.example.wdc.ui.fragment.NewsFragment;
-import com.example.wdc.utils.CommonUtils;
-import com.example.wdc.utils.DensityUtil;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.view.NewsDetailsView;
-
-import java.lang.annotation.Target;
 
 import butterknife.BindView;
 
 /**
  * Created by wdc on 2016/7/25.
  */
-public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView{
+public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView {
 
     @BindView(R.id.details_collapsingToolbarLayout)
     protected CollapsingToolbarLayout toolbarLayout;
@@ -60,9 +56,10 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
                 return super.onOptionsItemSelected(item);
         }
     }
+
     @Override
     protected void getBundleExtras(Bundle extras) {
-        if (null != extras){
+        if (null != extras) {
             bean = extras.getParcelable(NewsFragment.NEWS_DETAILS_KEY);
         }
     }
@@ -76,17 +73,35 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     protected View getLoadingTargetView() {
         return webView;
     }
+
     @Override
     protected void initViewsAndEvents() {
         toolbar.setBackgroundResource(android.R.color.transparent);
         toolbar.setTitle("");
-//        CollapsingToolbarLayout.LayoutParams params = (CollapsingToolbarLayout.LayoutParams) toolbar.getLayoutParams();
-//        toolbar.setPadding(0,CommonUtils.getStatusBarHeight(this),0,0);
-//        params.height = CommonUtils.getToolbarHeight(this) + CommonUtils.getStatusBarHeight(this);
-//        toolbar.setLayoutParams(params);
+
+        //view充满状态栏
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+            int id = getResources().getIdentifier("status_bar_height","dimen","android");
+            if (id > 0){
+                int height = getResources().getDimensionPixelSize(id);
+                toolbar.setPadding(0,height,0,0);
+            }
+        }
+
+//        setSupportActionBar(toolbar);
+//
+//        AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) toolbarLayout.getLayoutParams();
+//        params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL| AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+//        toolbarLayout.setLayoutParams(params);
+
+//        toolbar.getLayoutParams().height = AppBarLayout.LayoutParams.WRAP_CONTENT;
+
         toolbar.setTitleTextColor(getResources().getColor(R.color.colorTitleText));
-        mPresenter = new NewsDetailsPresenterImpl(this,this);
+        mPresenter = new NewsDetailsPresenterImpl(this, this);
         mPresenter.loadDetailsData(bean.getId());
+
     }
 
     @Override
@@ -130,29 +145,36 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setTitle(result.getTitle());
+
         Glide.with(this)
                 .load(result.getImage())
-                .centerCrop()
-                .placeholder(R.mipmap.app_icon)
                 .thumbnail(0.5f)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//磁盘缓存
-                .error(R.mipmap.app_icon)
-                .skipMemoryCache(false)
                 .into(img);
+
         StringBuffer buffer = handleHtml(result.getBody());
 
         webView.setDrawingCacheEnabled(true);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+
+        WebSettings settings = webView.getSettings();
+        //允许js代码
+        settings.setJavaScriptEnabled(true);
+        //自动加载图片
+        settings.setLoadsImagesAutomatically(true);
+        //禁用文字缩放
+        settings.setTextZoom(100);
+
+        //        settings.setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+
+
 //        webView.getSettings().setBlockNetworkImage(true);
 //        webView.getSettings().setLoadsImagesAutomatically(isLoadImg);
-        webView.loadDataWithBaseURL("file:///android_asset/",buffer.toString(),"text/html","utf-8",null);
+        webView.loadDataWithBaseURL("file:///android_asset/", buffer.toString(), "text/html", "utf-8", null);
 //        webView.setWebViewClient(client);
     }
 
     private boolean isLoadImg = false;
 
-    WebViewClient client = new WebViewClient(){
+    WebViewClient client = new WebViewClient() {
         @Override
         public void onPageFinished(WebView view, String url) {
 
@@ -165,7 +187,8 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     };
 
     /**
-     *  解析html文本
+     * 解析html文本
+     *
      * @param body
      * @return
      */
@@ -177,4 +200,41 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
         stringBuffer.append("</body></html>");
         return stringBuffer;
     }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        System.out.println("NewsDetailsActivity.onCreate");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("NewsDetailsActivity.onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("NewsDetailsActivity.onResume");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.out.println("NewsDetailsActivity.onDestroy");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        System.out.println("NewsDetailsActivity.onSaveInstanceState");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        System.out.println("NewsDetailsActivity.onPause");
+    }
+
 }

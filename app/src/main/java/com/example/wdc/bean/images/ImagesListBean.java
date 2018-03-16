@@ -1,7 +1,11 @@
 package com.example.wdc.bean.images;
 
+import android.databinding.BindingAdapter;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -688,4 +692,10 @@ public class ImagesListBean implements Parcelable {
             return new ImagesListBean[size];
         }
     };
+
+
+//    @BindingAdapter("imageUrl")
+//    public static void loadImage(ImageView imageView, String url){
+//        Glide.with(imageView.getContext()).load(url).into(imageView);
+//    }
 }

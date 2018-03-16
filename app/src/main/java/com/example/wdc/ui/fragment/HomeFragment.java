@@ -65,6 +65,8 @@ public class HomeFragment extends BaseFragment implements HomeView{
         activity.getDelegate().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mPresenter = new HomePresenterImpl(getActivity(),this);
         mPresenter.initialized();
+
+        toolbar.getChildAt(0).animate().scaleX(1.2f).scaleY(1.2f).setDuration(800);
     }
 
     @Override

@@ -32,7 +32,6 @@ import android.view.ViewGroup;
 
 import com.example.wdc.loading.VaryViewHelperController;
 
-import org.greenrobot.eventbus.EventBus;
 
 import java.lang.reflect.Field;
 
@@ -77,7 +76,7 @@ public abstract class BaseLazyFragment extends Fragment {
         super.onCreate(savedInstanceState);
         TAG_LOG = this.getClass().getSimpleName();
         if (isBindEventBusHere()) {
-            EventBus.getDefault().register(this);
+//            EventBus.getDefault().register(this);
         }
     }
 
@@ -118,7 +117,7 @@ public abstract class BaseLazyFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         if (isBindEventBusHere()) {
-            EventBus.getDefault().unregister(this);
+//            EventBus.getDefault().unregister(this);
         }
     }
 

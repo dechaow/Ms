@@ -2,46 +2,44 @@
 
 package com.example.wdc.ui.activity.base;
 
-import android.Manifest;
+import android.app.ActivityManager;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Layout;
 import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.wdc.ms.R;
 import com.example.wdc.loading.VaryViewHelperController;
-import com.example.wdc.utils.CommonUtils;
+import com.example.wdc.ms.R;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.utils.PrefUtil;
-import com.example.wdc.view.base.BaseView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import butterknife.ButterKnife;
 
 /**
  * Created by wdc on 2016/7/20.
+ * lifeCycle提供了一些接口帮助我们管理生命周期
+ * 内部使用两个枚举来跟踪生命周期状态
+ * 我们可以使用addObserver方法传入LifeCycleObserver对象来监听生命周期
+ * 被观察者实现LifecycleOwner接口
+ * <p>
+ * 如果要管理整个应用的生命周期应使用ProcessLifecycleOwner
+ * 我们继承AppCompatActivity 默认已经帮我们实现了LifeCycleOwner接口
  */
-public abstract class BaseAppCompatActivity extends AppCompatActivity{
+public abstract class BaseAppCompatActivity extends AppCompatActivity {
+
+    //创建我们自定义的LifeCycle管理
+    protected LifecycleRegistry mLifecycleRegistry;
 
     /**
      * Log tag
@@ -74,29 +72,34 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (toggleOverridePendingTransition()) {
-            switch (getOverridePendingTransitionMode()) {
-                case LEFT:
-                    overridePendingTransition(R.anim.left_in,R.anim.left_out);
-                    break;
-                case RIGHT:
-                    overridePendingTransition(R.anim.right_in,R.anim.right_out);
-                    break;
-                case TOP:
-                    overridePendingTransition(R.anim.top_in,R.anim.top_out);
-                    break;
-                case BOTTOM:
-                    overridePendingTransition(R.anim.bottom_in,R.anim.bottom_out);
-                    break;
-                case SCALE:
-                    overridePendingTransition(R.anim.scale_in,R.anim.scale_out);
-                    break;
-                case FADE:
-                    overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
-                    break;
-            }
-        }
+//        if (!toggleOverridePendingTransition()) {
+//            switch (getOverridePendingTransitionMode()) {
+//                case LEFT:
+//                    overridePendingTransition(R.anim.left_in, R.anim.left_out);
+//                    break;
+//                case RIGHT:
+//                    overridePendingTransition(R.anim.right_in, R.anim.right_out);
+//                    break;
+//                case TOP:
+//                    overridePendingTransition(R.anim.top_in, R.anim.top_out);
+//                    break;
+//                case BOTTOM:
+//                    overridePendingTransition(R.anim.bottom_in, R.anim.bottom_out);
+//                    break;
+//                case SCALE:
+//                    overridePendingTransition(R.anim.scale_in, R.anim.scale_out);
+//                    break;
+//                case FADE:
+//                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//                    break;
+//            }
+//        }
         super.onCreate(savedInstanceState);
+        setTaskDesc();
+
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        //标记当前状态
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
 
         //设置theme
         setTheme(PrefUtil.getTheme());
@@ -107,12 +110,8 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
         }
 
         if (isBindEventBusHere()) {
-            EventBus.getDefault().register(this);
+//            EventBus.getDefault().register(this);
         }
-        //判断smartBar是否存在
-//        SmartBarUtils.hide(getWindow().getDecorView());
-        //设置沉浸式状态栏
-//        setTranslucentStatus(isApplyStatusBarTranslucency());
 
         mContext = this;
         TAG_LOG = this.getClass().getSimpleName();
@@ -132,7 +131,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
             throw new IllegalArgumentException("You must return a right contentView layout resource Id");
         }
 
-        //判断网络连接
+//        //判断网络连接
 //        mNetChangeObserver = new NetChangeObserver() {
 //                @Override
 //                public void onNetConnected(NetUtils.NetType type) {
@@ -176,28 +175,28 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
     public void finish() {
         super.finish();
         BaseAppManager.getInstance().removeActivity(this);
-        if (toggleOverridePendingTransition()) {
-            switch (getOverridePendingTransitionMode()) {
-                case LEFT:
-                    overridePendingTransition(R.anim.left_in,R.anim.left_out);
-                    break;
-                case RIGHT:
-                    overridePendingTransition(R.anim.right_in,R.anim.right_out);
-                    break;
-                case TOP:
-                    overridePendingTransition(R.anim.top_in,R.anim.top_out);
-                    break;
-                case BOTTOM:
-                    overridePendingTransition(R.anim.bottom_in,R.anim.bottom_out);
-                    break;
-                case SCALE:
-                    overridePendingTransition(R.anim.scale_in,R.anim.scale_out);
-                    break;
-                case FADE:
-                    overridePendingTransition(R.anim.fade_in,R.anim.fade_out);
-                    break;
-            }
-        }
+//        if (!toggleOverridePendingTransition()) {
+//            switch (getOverridePendingTransitionMode()) {
+//                case LEFT:
+//                    overridePendingTransition(R.anim.left_in, R.anim.left_out);
+//                    break;
+//                case RIGHT:
+//                    overridePendingTransition(R.anim.right_in, R.anim.right_out);
+//                    break;
+//                case TOP:
+//                    overridePendingTransition(R.anim.top_in, R.anim.top_out);
+//                    break;
+//                case BOTTOM:
+//                    overridePendingTransition(R.anim.bottom_in, R.anim.bottom_out);
+//                    break;
+//                case SCALE:
+//                    overridePendingTransition(R.anim.scale_in, R.anim.scale_out);
+//                    break;
+//                case FADE:
+//                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//                    break;
+//            }
+//        }
     }
 
     @Override
@@ -206,20 +205,22 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
         //移除mNetChangeObserver
 //        NetStateReceiver.removeRegisterObserver(mNetChangeObserver);
         if (isBindEventBusHere()) {
-            EventBus.getDefault().unregister(this);
+//            EventBus.getDefault().unregister(this);
         }
     }
 
     /**
      * get bundle data
      * 接收Intent传值
+     *
      * @param extras
      */
     protected abstract void getBundleExtras(Bundle extras);
 
     /**
      * bind layout resource file
-     *  绑定id setContentView
+     * 绑定id setContentView
+     *
      * @return id of layout resource
      */
     protected abstract int getContentViewLayoutID();
@@ -252,27 +253,29 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
     /**
      * network disconnected
      * 网络连接断开
-     *
      */
     protected abstract void onNetworkDisConnected();
 
     /**
      * is applyStatusBarTranslucency
      * 是否需要设置状态栏颜色
+     *
      * @return
      */
     protected abstract boolean isApplyStatusBarTranslucency();
 
     /**
      * is bind eventBus
-     *是否需要注册eventbus
+     * 是否需要注册eventbus
+     *
      * @return
      */
     protected abstract boolean isBindEventBusHere();
 
     /**
      * toggle overridePendingTransition
-     *界面切换是否需要动画
+     * 界面切换是否需要动画
+     *
      * @return
      */
     protected abstract boolean toggleOverridePendingTransition();
@@ -369,7 +372,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
     protected void showToast(String msg) {
         //防止遮盖虚拟按键
 //        if (null != msg && !CommonUtils.isEmpty(msg)) {
-            Snackbar.make(getLoadingTargetView(), msg, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(getLoadingTargetView(), msg, Snackbar.LENGTH_SHORT).show();
 //        }
     }
 
@@ -393,7 +396,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
 
     /**
      * toggle show empty
-     *  显示错误的信息
+     * 显示错误的信息
      *
      * @param toggle
      */
@@ -445,85 +448,41 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity{
         }
     }
 
-//    public void onEventMainThread(EventCenter eventCenter) {
-//        if (null != eventCenter) {
-//            onEventComming(eventCenter);
-//        }
-//    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println(this.getClass().getSimpleName() + "BaseAppCompatActivity.onStart");
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+    }
 
-    /**
-     * use SytemBarTintManager
-     * 4.4以上为状态栏和导航栏设置背景色
-     *
-     * @param tintDrawable
-     */
-    protected void setSystemBarTintDrawable(Drawable tintDrawable) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            SystemBarTintManager mTintManager = new SystemBarTintManager(this);
-//            if (tintDrawable != null) {
-//                //开启tint
-//                mTintManager.setStatusBarTintEnabled(true);
-//                //设置背景色
-//                mTintManager.setTintDrawable(tintDrawable);
-//            } else {
-//                mTintManager.setStatusBarTintEnabled(false);
-//                mTintManager.setTintDrawable(null);
-//            }
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        System.out.println(this.getClass().getSimpleName() + "BaseAppCompatActivity.onPause");
+    }
 
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
     }
 
     /**
-     * set status bar translucency
-     * 设置状态栏的颜色
-     * 4.4以上的可以显示沉浸式状态栏
-     * 5.0以上的状态栏是半透明
-     *
-     * @param on
+     * 设置进程任务栏的样式
      */
-    protected void setTranslucentStatus(boolean on) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window win = getWindow();
-            win.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            // smoothbar 透明
-//            win.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            if (PrefUtil.getTheme() == R.style.NightTheme){
-                addStatusText(R.color.colorPrimary);
-            }else if(PrefUtil.getTheme() == R.style.DefaultTheme){
-                addStatusText(R.color.colorBase);
-            }
-
+    protected void setTaskDesc(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            Drawable drawable = ContextCompat.getDrawable(this,getApplicationInfo().icon);
+            Bitmap bitmap = drawable2Bitmap(drawable);
+            this.setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name),bitmap));
+            bitmap.recycle();
         }
     }
 
-    /**
-     *  添加一个状态栏高度的textview块
-     */
-    protected void addStatusText(int color){
-        if (isAddStatusHeight()){
-            TextView txt = new TextView(this);
-            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, CommonUtils.getStatusBarHeight(this));
-            txt.setLayoutParams(param);
-            txt.setBackgroundColor(getResources().getColor(color));
-            addStatusView(txt);
-        }
+    private Bitmap drawable2Bitmap(Drawable drawable){
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight(), Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0,0,canvas.getWidth(),canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
     }
-
-    /**
-     * 添加状态栏view
-     * @param txt
-     */
-    protected void addStatusView(View txt){
-        ViewGroup view = (ViewGroup) getWindow().getDecorView();
-        view.addView(txt);
-    }
-    /**
-     *
-     */
-    protected void removeStatusView(){
-        ViewGroup view = (ViewGroup) getWindow().getDecorView();
-        int count = view.getChildCount();
-        view.removeView(view.getChildAt(count - 1));
-    }
-
 }
