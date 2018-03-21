@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/imagedetail_root"
-    android:fitsSystemWindows="true"
-    >
-<com.example.wdc.widgets.photoview.PhotoView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scaleType="fitCenter"
-    android:id="@+id/imgdetail_smoothimgview"
-    />
-</LinearLayout>
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.example.wdc.widgets.photoview.PhotoView
+        android:background="@android:color/black"
+        android:id="@+id/imgdetail_smoothimgview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter" />
+</FrameLayout>

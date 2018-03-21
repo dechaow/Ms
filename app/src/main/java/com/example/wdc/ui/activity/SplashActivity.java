@@ -90,11 +90,6 @@ public class SplashActivity extends BaseAppCompatActivity {
     }
 
     @Override
-    protected boolean isBindEventBusHere() {
-        return false;
-    }
-
-    @Override
     protected boolean toggleOverridePendingTransition() {
         return false;
     }
@@ -203,15 +198,6 @@ public class SplashActivity extends BaseAppCompatActivity {
                     }
                 });
 
-//                for (String permission : permissions) {
-//
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                        if (!shouldShowRequestPermissionRationale(permission)) {
-//
-//
-//                        }
-//                    }
-//                }
             }
             return;
         }

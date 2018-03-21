@@ -43,6 +43,8 @@
             android:screenOrientation="portrait"
             ></activity>
 
+        <activity android:name="com.example.wdc.ui.activity.TestActivity"/>
+
     </application>
 
 </manifest>

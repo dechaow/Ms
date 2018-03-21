@@ -19,12 +19,19 @@ import com.example.wdc.ms.R;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.fragment.ImagesFragment;
 import com.example.wdc.utils.NetUtils;
+import com.example.wdc.widgets.photoview.Info;
 import com.example.wdc.widgets.photoview.PhotoView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by wdc on 2016/7/26.
@@ -33,20 +40,16 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @BindView(R.id.imgdetail_smoothimgview)
     protected PhotoView mPhotoView;
-    @BindView(R.id.imagedetail_root)
-    protected LinearLayout imagedetail_root;
-
-//    private int x;
-//    private int y;
-//    private int width;
-//    private int height;
 
     private ImagesListBean bean;
+
+    private Info info;
 
     @Override
     protected void getBundleExtras(Bundle extras) {
         if (extras != null) {
             bean = extras.getParcelable("data");
+            info = extras.getParcelable("info");
         }
         setTheme(R.style.DefaultTheme_ImageDetailTheme);
     }
@@ -63,15 +66,10 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @Override
     protected void initViewsAndEvents() {
-        imagedetail_root.setBackgroundResource(android.R.color.transparent);
 
-        System.out.println("ImageDetailActivity.initViewsAndEvents" + bean.getThumbnailUrl());
+        mPhotoView.enable();
+
         String url = bean.getThumbnailUrl();
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-//            getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
-
-//        Glide.with(this).load(url).into(mPhotoView);
 
         //glide 4.x 使用 RequestBuilder 构建处理
         RequestBuilder<Drawable> requestBuilder = Glide.with(this).load(url);
@@ -79,8 +77,9 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
         //使用 RequestOptions 来处理 centerCrop() placeholder()等
         RequestOptions requestOptions = new RequestOptions()
                 .centerCrop()
-                .placeholder(R.drawable.pic_loading)
+//                .placeholder(R.drawable.pic_loading)
                 .error(R.drawable.pic_loading)
+                .fitCenter()
                 .priority(Priority.HIGH);
 
         //然后将 options 应用到 builder上
@@ -90,27 +89,36 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
         requestBuilder.transition(DrawableTransitionOptions.withCrossFade(300));
 
         //显示
-        requestBuilder.load(url).thumbnail(0.8f).into(mPhotoView);
+        requestBuilder.load(url).into(mPhotoView);
+
+
+        mPhotoView.animaFrom(info);
+
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPhotoView.animaTo(mPhotoView.getInfo(), new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                    }
+                });
+            }
+        });
+
 
     }
 
     @Override
     protected void onNetworkConnected(NetUtils.NetType type) {
-
     }
 
     @Override
     protected void onNetworkDisConnected() {
-
     }
 
     @Override
     protected boolean isApplyStatusBarTranslucency() {
-        return false;
-    }
-
-    @Override
-    protected boolean isBindEventBusHere() {
         return false;
     }
 
@@ -129,4 +137,10 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
         return false;
     }
 
+    @Override
+    public void finish() {
+//        mPhotoView.animaTo(info,null);
+        super.finish();
+        overridePendingTransition(0,0);
+    }
 }

@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.dokka'
 
 android {
     //编译时的sdkVersion，这个是编译时的版本，是你代码中使用的sdkVersion
@@ -15,6 +18,7 @@ android {
         targetSdkVersion versions.targetSdkVersion
         versionCode versions.versionCode
         versionName versions.versionName
+        multiDexEnabled true
     }
     /**
      * 配置构建类型 一般分为debug 和 release
@@ -67,8 +71,14 @@ dependencies {
     //liveData viewModel
     implementation "android.arch.lifecycle:extensions:${versions.lifecycle}"
     //ReactiveStreams support for LiveData
-    implementation "android.arch.lifecycle:reactivestreams:1.1.0"
+    implementation "android.arch.lifecycle:reactivestreams:${versions.lifecycle}"
 
+    //room
+    implementation "android.arch.persistence.room:runtime:${versions.room}"
+    annotationProcessor "android.arch.persistence.room:compiler:${versions.room}"
+
+    // Paging
+    implementation "android.arch.paging:runtime:${versions.paging}"
 
 // viewModel
 //    implementation "android.arch.lifecycle:viewmodel:${versions.lifecycle}"
@@ -99,5 +109,16 @@ dependencies {
     implementation "com.squareup.okio:okio:${versions.okio}"
     implementation "com.google.code.gson:gson:${versions.gson}"
 
+    //ktx
+    implementation "androidx.core:core-ktx:${versions.ktx}"
 
 }
+
+/**
+ * 生成kotlin格式的代码查看文档
+ */
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/documentation"
+}
+

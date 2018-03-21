@@ -32,10 +32,11 @@ public class ImageViewDataBindings {
 
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.pic_loading)
+                .centerCrop()
                 .priority(Priority.HIGH);
 
         requestBuilder.apply(options);
 
-        requestBuilder.thumbnail(0.5f).into(imageView);
+        requestBuilder.into(imageView);
     }
 }

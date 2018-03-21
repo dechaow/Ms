@@ -1,12 +1,9 @@
 package com.example.wdc.ui.activity;
 
 import android.content.res.Resources;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -28,16 +25,12 @@ import com.example.wdc.utils.NetUtils;
 import com.example.wdc.utils.PrefUtil;
 import com.example.wdc.view.MainView;
 
-import java.io.File;
-import java.io.IOException;
-
 import butterknife.BindView;
 
 /**
  * Created by wdc on 2016/7/20.
  */
 public class MainActivity extends BaseActivity implements MainView {
-
 
     @BindView(R.id.main_drawer_layout)
     protected DrawerLayout mDrawerLayout;
@@ -112,27 +105,12 @@ public class MainActivity extends BaseActivity implements MainView {
         mPresenter = new MainPresenterImpl(this, this);
         mPresenter.initialized();
 
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-
-
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/ms.txt");
-        if (!file.exists()){
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-            }
-        },123);
-
-        System.out.println("MainActivity.initViewsAndEvents   "  + Uri.parse("file://" + file.getAbsolutePath()));
-        System.out.println("MainActivity.initViewsAndEvents   " + Uri.fromFile(file));
-
+        //1440*2392
+        System.out.println("PhotoView.onSizeChanged MainActivity.initViewsAndEvents"  + mScreenHeight + "   " + mScreenWidth);
     }
 
     @Override
@@ -147,11 +125,6 @@ public class MainActivity extends BaseActivity implements MainView {
 
     @Override
     protected boolean isApplyStatusBarTranslucency() {
-        return false;
-    }
-
-    @Override
-    protected boolean isBindEventBusHere() {
         return false;
     }
 
@@ -193,8 +166,4 @@ public class MainActivity extends BaseActivity implements MainView {
         mTransaction.commit();
     }
 
-//    @Override
-//    public Lifecycle getLifecycle() {
-//        return mLifecycleRegistry;
-//    }
 }

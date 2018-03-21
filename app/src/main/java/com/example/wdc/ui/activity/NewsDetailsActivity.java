@@ -120,11 +120,6 @@ public class NewsDetailsActivity extends BaseActivity implements NewsDetailsView
     }
 
     @Override
-    protected boolean isBindEventBusHere() {
-        return false;
-    }
-
-    @Override
     protected boolean toggleOverridePendingTransition() {
         return true;
     }

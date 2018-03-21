@@ -12,6 +12,7 @@ import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.retrofit.manager.RetrofitManager;
 import com.example.wdc.ui.fragment.news.OnItemClickListener;
 import com.example.wdc.utils.UrlUtils;
+import com.example.wdc.widgets.photoview.PhotoView;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
@@ -64,7 +65,7 @@ public class ImagesViewModel extends AndroidViewModel {
         this.mImageClick = mImageClick;
     }
 
-    public void onImageClick(View view,ImagesListBean bean){
+    public void onImageClick(View view, ImagesListBean bean){
         if (mImageClick != null){
             mImageClick.onItemClick(view,bean);
         }

@@ -12,13 +12,13 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.wdc.bean.images.ImagesListBean;
-import com.example.wdc.event.ImageOnClick;
 import com.example.wdc.ms.R;
 import com.example.wdc.ms.databinding.ItemImagesBinding;
 import com.example.wdc.ui.fragment.images.ImagesViewModel;
 import com.example.wdc.utils.CommonUtils;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.widgets.MateialProgressBar;
+import com.example.wdc.widgets.photoview.PhotoView;
 
 
 import java.util.ArrayList;
@@ -106,13 +106,14 @@ public class ImageListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     class ImagesViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView img;
+        PhotoView img;
         ItemImagesBinding binding;
 
         public ImagesViewHolder(View itemView,ItemImagesBinding binding) {
             super(itemView);
             this.binding = binding;
-            img = (ImageView) itemView.findViewById(R.id.imagelist_img);
+            img =  itemView.findViewById(R.id.imagelist_img);
+            img.disenable();
         }
     }
 

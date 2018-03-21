@@ -1,41 +1,37 @@
 package com.example.wdc.ui.fragment;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.example.wdc.ViewModelFactory;
 import com.example.wdc.adapter.ImageListAdapter;
 import com.example.wdc.bean.images.ImagesBean;
 import com.example.wdc.bean.images.ImagesListBean;
 import com.example.wdc.ms.R;
-import com.example.wdc.presenter.ImagesPresenter;
-import com.example.wdc.presenter.impl.ImagesPresenterImpl;
 import com.example.wdc.ui.activity.ImageDetailActivity;
 import com.example.wdc.ui.fragment.base.BaseFragment;
 import com.example.wdc.ui.fragment.images.ImagesViewModel;
 import com.example.wdc.ui.fragment.news.OnItemClickListener;
 import com.example.wdc.utils.PrefUtil;
-import com.example.wdc.utils.UrlUtils;
-import com.example.wdc.view.ImagesView;
 import com.example.wdc.widgets.LoadMoreListener;
 import com.example.wdc.widgets.SpacesItemDecoration;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.wdc.widgets.photoview.Info;
+import com.example.wdc.widgets.photoview.PhotoView;
 
 import butterknife.BindView;
 
 /**
  * Created by wdc on 2016/7/21.
  */
-public class ImagesFragment extends BaseFragment implements OnItemClickListener<ImagesListBean>{
+public class ImagesFragment extends BaseFragment implements OnItemClickListener<ImagesListBean> {
 
     @BindView(R.id.images_swipe_refresh_layout)
     protected SwipeRefreshLayout mReLayout;
@@ -43,7 +39,7 @@ public class ImagesFragment extends BaseFragment implements OnItemClickListener<
     protected RecyclerView mRecyclerView;
 
     private ImageListAdapter mAdapter;
-    private StaggeredGridLayoutManager manager;
+    private GridLayoutManager manager;
     private int page = 3;
     private int listSize;
 
@@ -81,7 +77,7 @@ public class ImagesFragment extends BaseFragment implements OnItemClickListener<
 
     @Override
     protected void initViewsAndEvents() {
-        mImagesViewModel = new ImagesViewModel(getActivity().getApplication());
+        mImagesViewModel = obtainViewModel(getActivity());
         mImagesViewModel.setImageClick(this);
 
         mAdapter = new ImageListAdapter(this, mImagesViewModel, mScreenWidth);
@@ -109,6 +105,16 @@ public class ImagesFragment extends BaseFragment implements OnItemClickListener<
                 System.out.println("ImagesFragment.loadMoreData   " + page);
                 mImagesViewModel.loadData(page);
             }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    Glide.with(getActivity()).resumeRequests();
+                } else {
+                    Glide.with(getActivity()).pauseAllRequests();
+                }
+                super.onScrollStateChanged(recyclerView, newState);
+            }
         });
     }
 
@@ -122,7 +128,14 @@ public class ImagesFragment extends BaseFragment implements OnItemClickListener<
         return true;
     }
 
-    private void setUpTheme(){
+    public static ImagesViewModel obtainViewModel(FragmentActivity activity) {
+
+        ViewModelFactory factory = ViewModelFactory.getInstance(activity.getApplication());
+
+        return ViewModelProviders.of(activity, factory).get(ImagesViewModel.class);
+    }
+
+    private void setUpTheme() {
         if (PrefUtil.getTheme() == R.style.DefaultTheme) {
             mReLayout.setColorSchemeResources(R.color.colorBase);
         } else if (PrefUtil.getTheme() == R.style.NightTheme) {
@@ -130,8 +143,8 @@ public class ImagesFragment extends BaseFragment implements OnItemClickListener<
         }
     }
 
-    private void setUpRecyclerView(){
-        manager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+    private void setUpRecyclerView() {
+        manager = new GridLayoutManager(getActivity(), 2);
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(20));
     }
@@ -141,9 +154,12 @@ public class ImagesFragment extends BaseFragment implements OnItemClickListener<
     }
 
     @Override
-    public void onItemClick(View v,ImagesListBean bean) {
+    public void onItemClick(View v, ImagesListBean bean) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data",bean);
-        readyGo(ImageDetailActivity.class,bundle);
+        bundle.putParcelable("data", bean);
+        Info info = ((PhotoView) v).getInfo();
+        bundle.putParcelable("info", info);
+        readyGo(ImageDetailActivity.class, bundle);
+        getActivity().overridePendingTransition(0, 0);
     }
 }

@@ -3,6 +3,7 @@ package com.example.wdc.ui.fragment.news;
 import android.view.View;
 
 import com.example.wdc.bean.news.NewsBean;
+import com.example.wdc.widgets.photoview.PhotoView;
 
 /**
  * Created by dechao on 2018/2/9.
@@ -14,5 +15,5 @@ import com.example.wdc.bean.news.NewsBean;
  */
 
 public interface OnItemClickListener<T> {
-    void onItemClick(View view,T bean);
+    void onItemClick(View view, T bean);
 }

@@ -109,10 +109,6 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
             getBundleExtras(extras);
         }
 
-        if (isBindEventBusHere()) {
-//            EventBus.getDefault().register(this);
-        }
-
         mContext = this;
         TAG_LOG = this.getClass().getSimpleName();
         BaseAppManager.getInstance().addActivity(this);
@@ -204,9 +200,6 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
         super.onDestroy();
         //移除mNetChangeObserver
 //        NetStateReceiver.removeRegisterObserver(mNetChangeObserver);
-        if (isBindEventBusHere()) {
-//            EventBus.getDefault().unregister(this);
-        }
     }
 
     /**
@@ -263,14 +256,6 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
      * @return
      */
     protected abstract boolean isApplyStatusBarTranslucency();
-
-    /**
-     * is bind eventBus
-     * 是否需要注册eventbus
-     *
-     * @return
-     */
-    protected abstract boolean isBindEventBusHere();
 
     /**
      * toggle overridePendingTransition

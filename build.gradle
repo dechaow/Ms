@@ -22,15 +22,23 @@ buildscript {
 
             //library
             'butterknife' : '8.8.1',
-            'supportLibrary' : '26.1.0',
+            'supportLibrary' : '27.1.0',
             'lifecycle' : '1.1.0',
+            'room' : '1.0.0',
+            'paging' : '1.0.0-alpha6',
             'retrofit' : '2.3.0',
             'okhttp' : '3.10.0',
             'okio' : '1.14.0',
             'rxjava' : '2.1.10',
             'rxandroid' : '2.0.2',
             'gson' : '2.8.2',
-            'glide' : '4.6.1'
+            'glide' : '4.6.1',
+
+            //kotlin
+            'kotlin' :'1.2.21',
+            'dokka' : '0.9.16',
+            'anko' : '0.10.1',
+            'ktx' : '0.2',
 
     ]
     /**
@@ -49,10 +57,13 @@ buildscript {
      * 这里使用了gradle插件和butterknife插件
      * 为什么有的库需要添加plugin依赖，因为他们需要在编译时注入一些自己的代码
      * 比如dagger也需要使用plugin来帮助我们编译时将注解翻译成代码
+     * dokka是kotlin的文档引擎
      */
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
         classpath "com.jakewharton:butterknife-gradle-plugin:${versions.butterknife}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${versions.dokka}"
     }
 }
 
