@@ -25,7 +25,11 @@ import com.example.wdc.utils.NetUtils;
 import com.example.wdc.utils.PrefUtil;
 import com.example.wdc.view.MainView;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by wdc on 2016/7/20.
@@ -109,8 +113,7 @@ public class MainActivity extends BaseActivity implements MainView {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
-        //1440*2392
-        System.out.println("PhotoView.onSizeChanged MainActivity.initViewsAndEvents"  + mScreenHeight + "   " + mScreenWidth);
+
     }
 
     @Override

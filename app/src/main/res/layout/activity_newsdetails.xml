@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="model"
+            type="com.example.wdc.bean.news.NewsDetailsBean"/>
+    </data>
+
+<android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
@@ -25,6 +33,7 @@
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <ImageView
+                app:imageUrlD="@{model.image}"
                 android:id="@+id/details_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -41,6 +50,7 @@
                 android:id="@+id/common_toolbar"
                 app:theme="@style/MyToolBar"
                 app:layout_collapseMode="pin"
+                app:title="@{model.title}"
                 ></android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
@@ -53,6 +63,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <WebView
+            app:body="@{model.body}"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
             android:id="@+id/details_webview"
@@ -88,3 +99,4 @@
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>
+</layout>

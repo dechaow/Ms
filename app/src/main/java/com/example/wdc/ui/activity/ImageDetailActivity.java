@@ -1,5 +1,6 @@
 package com.example.wdc.ui.activity;
 
+import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,7 +16,9 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.wdc.bean.images.ImagesListBean;
+import com.example.wdc.ms.ImageViewDataBindings;
 import com.example.wdc.ms.R;
+import com.example.wdc.ms.databinding.ActivityImgdetailBinding;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
 import com.example.wdc.ui.fragment.ImagesFragment;
 import com.example.wdc.utils.NetUtils;
@@ -45,11 +48,15 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     private Info info;
 
+    String url;
+
     @Override
     protected void getBundleExtras(Bundle extras) {
         if (extras != null) {
             bean = extras.getParcelable("data");
             info = extras.getParcelable("info");
+
+            url = extras.getString("url");
         }
         setTheme(R.style.DefaultTheme_ImageDetailTheme);
     }
@@ -67,9 +74,16 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
     @Override
     protected void initViewsAndEvents() {
 
+        //这里image的加载方式还需要修改
+
         mPhotoView.enable();
 
-        String url = bean.getThumbnailUrl();
+        if (bean != null){
+            url = bean.getThumbnailUrl();
+        }
+
+//        ActivityImgdetailBinding binding = DataBindingUtil.setContentView(this,R.layout.activity_imgdetail);
+//        binding.setModel(bean);
 
         //glide 4.x 使用 RequestBuilder 构建处理
         RequestBuilder<Drawable> requestBuilder = Glide.with(this).load(url);
@@ -91,21 +105,21 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
         //显示
         requestBuilder.load(url).into(mPhotoView);
 
+        if (info != null){
+            mPhotoView.animaFrom(info);
 
-        mPhotoView.animaFrom(info);
-
-        mPhotoView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPhotoView.animaTo(mPhotoView.getInfo(), new Runnable() {
-                    @Override
-                    public void run() {
-                        finish();
-                    }
-                });
-            }
-        });
-
+            mPhotoView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mPhotoView.animaTo(mPhotoView.getInfo(), new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    });
+                }
+            });
+        }
 
     }
 
@@ -141,6 +155,8 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
     public void finish() {
 //        mPhotoView.animaTo(info,null);
         super.finish();
-        overridePendingTransition(0,0);
+        if (info != null){
+            overridePendingTransition(0,0);
+        }
     }
 }
