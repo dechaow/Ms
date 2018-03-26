@@ -1,5 +1,6 @@
 package com.example.wdc.ui.activity;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
@@ -117,13 +118,11 @@ public class MainActivity extends BaseActivity implements MainView {
     }
 
     @Override
-    protected void onNetworkConnected(NetUtils.NetType type) {
-
+    public void onNetworkConnected() {
     }
 
     @Override
-    protected void onNetworkDisConnected() {
-
+    public void onNetworkDisConnected() {
     }
 
     @Override
@@ -169,4 +168,9 @@ public class MainActivity extends BaseActivity implements MainView {
         mTransaction.commit();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        System.out.println("MainActivity.onNewIntent");
+    }
 }

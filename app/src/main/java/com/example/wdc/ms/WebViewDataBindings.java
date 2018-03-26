@@ -61,7 +61,17 @@ public class WebViewDataBindings {
      */
     public static StringBuffer handleHtml(String body) {
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"css/detail.css\" ><style type=\"text/css\">.content-image{width:100%;height:240px} \n p{font-size:80px}</style></head>");
+        stringBuffer.append("<html>" +
+                "<head>" +
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"css/detail.css\" >" +
+                "<style type=\"text/css\">" +
+                ".content-image{width:100%;height:240px} " +
+                "\n p{font-size:17px; \n color:#444444; \n letter-spacing:1.5px} \n " +
+                "*{padding-left:1.5px; \n padding-right:2px; \n background-color:#efefef} \n" +
+                ".question-title{font-size:20px;} \n" +
+                ".a{ background-color:#ccc; \n width:100%; \n text-decoration:none; \n padding:4px;} " +
+                "</style>" +
+                "</head>");
 
         stringBuffer.append("<body>");
         stringBuffer.append(body);

@@ -75,13 +75,11 @@ public class SplashActivity extends BaseAppCompatActivity {
     }
 
     @Override
-    protected void onNetworkConnected(NetUtils.NetType type) {
-
+    public void onNetworkConnected() {
     }
 
     @Override
-    protected void onNetworkDisConnected() {
-
+    public void onNetworkDisConnected() {
     }
 
     @Override

@@ -1,40 +1,28 @@
 package com.example.wdc.ui.activity;
 
-import android.databinding.DataBindingUtil;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.TransitionOptions;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.example.wdc.bean.images.ImagesListBean;
-import com.example.wdc.ms.ImageViewDataBindings;
 import com.example.wdc.ms.R;
-import com.example.wdc.ms.databinding.ActivityImgdetailBinding;
 import com.example.wdc.ui.activity.base.BaseAppCompatActivity;
-import com.example.wdc.ui.fragment.ImagesFragment;
-import com.example.wdc.utils.NetUtils;
 import com.example.wdc.widgets.photoview.Info;
 import com.example.wdc.widgets.photoview.PhotoView;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.concurrent.TimeUnit;
-
 import butterknife.BindView;
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by wdc on 2016/7/26.
@@ -43,12 +31,16 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @BindView(R.id.imgdetail_smoothimgview)
     protected PhotoView mPhotoView;
+    @BindView(R.id.img_bg)
+    protected View mViewBg;
 
     private ImagesListBean bean;
 
     private Info info;
 
     String url;
+
+    private ValueAnimator mAnimator = null;
 
     @Override
     protected void getBundleExtras(Bundle extras) {
@@ -78,7 +70,7 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
         mPhotoView.enable();
 
-        if (bean != null){
+        if (bean != null) {
             url = bean.getThumbnailUrl();
         }
 
@@ -102,33 +94,72 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
         //添加动画
         requestBuilder.transition(DrawableTransitionOptions.withCrossFade(300));
 
+        //加载进度监听
+        requestBuilder.listener(new RequestListener<Drawable>() {
+            @Override
+            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                return false;
+            }
+
+        });
+
         //显示
         requestBuilder.load(url).into(mPhotoView);
 
-        if (info != null){
+        if (info != null) {
             mPhotoView.animaFrom(info);
-
-            mPhotoView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPhotoView.animaTo(mPhotoView.getInfo(), new Runnable() {
-                        @Override
-                        public void run() {
-                            finish();
-                        }
-                    });
-                }
-            });
+            setImageBackgroundAnim(0f, 1f);
         }
 
+        mPhotoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (info == null) {
+                    finish();
+                    return;
+                }
+                mPhotoView.animaTo(info, new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                    }
+                });
+
+                setImageBackgroundAnim(1f, 0f);
+            }
+        });
+
+        mPhotoView.setScrollDismissListener(new PhotoView.IScrollDismiss() {
+            @Override
+            public void dismiss() {
+                if (info == null) {
+                    finish();
+                    return;
+                }
+                mPhotoView.animaTo(info, new Runnable() {
+                    @Override
+                    public void run() {
+                        finish();
+                    }
+                });
+
+                setImageBackgroundAnim(1f, 0f);
+            }
+        });
+
     }
 
     @Override
-    protected void onNetworkConnected(NetUtils.NetType type) {
+    public void onNetworkConnected() {
     }
 
     @Override
-    protected void onNetworkDisConnected() {
+    public void onNetworkDisConnected() {
     }
 
     @Override
@@ -153,10 +184,37 @@ public class ImageDetailActivity extends BaseAppCompatActivity {
 
     @Override
     public void finish() {
-//        mPhotoView.animaTo(info,null);
         super.finish();
-        if (info != null){
-            overridePendingTransition(0,0);
+        if (info != null) {
+            overridePendingTransition(0, 0);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (info == null) {
+            finish();
+            return;
+        }
+        mPhotoView.animaTo(info, new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        });
+        setImageBackgroundAnim(1f, 0f);
+    }
+
+    private void setImageBackgroundAnim(float start, float end) {
+        mAnimator = ObjectAnimator.ofFloat(1f, 0f);
+        mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float current = (float) animation.getAnimatedValue();
+                mViewBg.setAlpha(current);
+            }
+        });
+        mAnimator.setDuration(mPhotoView.getAnimaDuring());
+        mAnimator.start();
     }
 }

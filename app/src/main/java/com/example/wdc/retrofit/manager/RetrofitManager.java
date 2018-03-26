@@ -37,7 +37,7 @@ public class RetrofitManager {
 
     private Context mContext;
 
-    public static RetrofitManager builder( String baseUrl) {
+    public static RetrofitManager builder(String baseUrl) {
         return new RetrofitManager(baseUrl);
     }
 
@@ -74,7 +74,9 @@ public class RetrofitManager {
 
                     mOkHttpClient = new OkHttpClient.Builder()
                             .cache(mCache)
+                            //应用拦截器
                             .addInterceptor(mInterceptor)
+                            //网络拦截器
                             .addNetworkInterceptor(mInterceptor)
                             .addInterceptor(mHttpLoggingInterceptor)
                             .retryOnConnectionFailure(true)

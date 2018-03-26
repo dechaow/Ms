@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
@@ -20,10 +21,10 @@ import com.example.wdc.ms.R;
 import com.example.wdc.ms.databinding.ActivityNewsdetailsBinding;
 import com.example.wdc.ui.activity.base.BaseActivity;
 import com.example.wdc.ui.activity.newsdetail.NewsDetailViewModel;
-import com.example.wdc.ui.fragment.NewsFragment;
-import com.example.wdc.utils.NetUtils;
 
 import butterknife.BindView;
+
+import static com.example.wdc.ui.fragment.NewsFragment.NEWS_DETAILS_KEY;
 
 /**
  * Created by wdc on 2016/7/25.
@@ -40,6 +41,8 @@ public class NewsDetailsActivity extends BaseActivity {
     protected WebView webView;
     @BindView(R.id.common_toolbar)
     protected Toolbar toolbar;
+    @BindView(R.id.detail_app_bar)
+    protected AppBarLayout mAppBarLayout;
 
     private NewsBean bean;
 
@@ -58,7 +61,7 @@ public class NewsDetailsActivity extends BaseActivity {
     @Override
     protected void getBundleExtras(Bundle extras) {
         if (null != extras) {
-            bean = extras.getParcelable(NewsFragment.NEWS_DETAILS_KEY);
+            bean = extras.getParcelable(NEWS_DETAILS_KEY);
         }
     }
 
@@ -79,12 +82,24 @@ public class NewsDetailsActivity extends BaseActivity {
         mViewModel.getDetailBean(bean.getId());
 
         final ActivityNewsdetailsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_newsdetails);
+        //展示加载中的view
+        showLoading("加载中……");
 
         toolbar.setBackgroundResource(android.R.color.transparent);
         toolbar.setTitleTextColor(getResources().getColor(R.color.colorTitleText));
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+//        toolbar.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Bundle bundle = new Bundle();
+//                bean.setId(23);
+//                bundle.putParcelable(NEWS_DETAILS_KEY, bean);
+//                readyGo(NewsDetailsActivity.class, bundle);
+//            }
+//        });
 
         //view充满状态栏
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -100,20 +115,39 @@ public class NewsDetailsActivity extends BaseActivity {
         mViewModel.getNewsData().observe(this, new Observer<NewsDetailsBean>() {
             @Override
             public void onChanged(@Nullable NewsDetailsBean newsDetailsBean) {
+                hideLoading();
                 binding.setModel(newsDetailsBean);
+            }
+        });
+
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                //折叠状态
+                if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
+                    toolbar.setBackgroundResource(R.color.colorHalf);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        toolbar.setElevation(4f);
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        toolbar.setElevation(0f);
+                    }
+                    toolbar.setBackgroundColor(Color.TRANSPARENT);
+                }
             }
         });
 
     }
 
     @Override
-    protected void onNetworkConnected(NetUtils.NetType type) {
-
+    public void onNetworkConnected() {
+//        Snackbar.make(getWindow().getDecorView(),"网络连接",Snackbar.LENGTH_LONG).show();
     }
 
     @Override
-    protected void onNetworkDisConnected() {
-
+    public void onNetworkDisConnected() {
+//        Snackbar.make(getWindow().getDecorView(),"网络连接异常",Snackbar.LENGTH_LONG).show();
     }
 
     @Override

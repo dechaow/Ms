@@ -59,8 +59,20 @@ android {
  * 在这里块里声明你依赖的module、library(包括远端和本地的)
  */
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar','*.aar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
+
+    //glide,因为glide引用了最新的supportv4包 所以会和我们的supportLibrary有冲突，这里设置忽略glide的support
+    implementation ("com.github.bumptech.glide:glide:${versions.glide}"){
+        exclude group: "com.android.support"
+    }
+    implementation "com.github.bumptech.glide:okhttp3-integration:${versions.glide}"
+    annotationProcessor "com.github.bumptech.glide:compiler:${versions.glide}"
+
+    //okhttp
+    implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
+    implementation "com.squareup.okio:okio:${versions.okio}"
 
     //support
     implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
@@ -88,12 +100,6 @@ dependencies {
     implementation "com.jakewharton:butterknife:${versions.butterknife}"
     annotationProcessor "com.jakewharton:butterknife-compiler:${versions.butterknife}"
 
-    //glide,因为glide引用了最新的supportv4包 所以会和我们的supportLibrary有冲突，这里设置忽略glide的support
-    implementation ("com.github.bumptech.glide:glide:${versions.glide}"){
-        exclude group: "com.android.support"
-    }
-    annotationProcessor "com.github.bumptech.glide:compiler:${versions.glide}"
-
     //retrofit
     implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
     implementation "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
@@ -103,10 +109,7 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
     implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
 
-    //okhttp
-    implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
-    implementation "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
-    implementation "com.squareup.okio:okio:${versions.okio}"
+
     implementation "com.google.code.gson:gson:${versions.gson}"
 
     //ktx

@@ -8,6 +8,7 @@
     <color name="colorTitleText">#FFFFFF</color>
     <color name="colorLine">#eeeeee</color>
     <color name="colorTran">#00000000</color>
+    <color name="colorHalf">#50000000</color>
 
     <color name="alpha_80_black">#CC000000</color>
     <color name="sr_window_background">#FFFEFEFE</color>

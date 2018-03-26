@@ -2,6 +2,7 @@ package com.example.wdc.widgets.photoview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -45,6 +46,7 @@ public class PhotoView extends AppCompatImageView {
 
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
+    //这个是最大可滑动距离
     private int MAX_OVER_RESISTANCE = 0;
     private int MAX_ANIM_FROM_WAITE = 500;
 
@@ -82,6 +84,7 @@ public class PhotoView extends AppCompatImageView {
     private boolean isZoonUp;
     private boolean canRotate;
 
+    //判断图片的宽高是否大于控件的宽高
     private boolean imgLargeWidth;
     private boolean imgLargeHeight;
 
@@ -89,12 +92,13 @@ public class PhotoView extends AppCompatImageView {
     private float mDegrees;
     private float mScale = 1.0f;
     private int mTranslateX;
+    //纵向滑动距离
     private int mTranslateY;
 
     //baseRect宽高的中点，也就是base的中心
     private float mHalfBaseRectWidth;
     private float mHalfBaseRectHeight;
-
+    //控件的rect？
     private RectF mWidgetRect = new RectF();
     //原始图片位置
     private RectF mBaseRect = new RectF();
@@ -116,6 +120,12 @@ public class PhotoView extends AppCompatImageView {
     private Runnable mCompleteCallBack;
 
     private OnLongClickListener mLongClick;
+
+    private IScrollDismiss mScrollDismiss;
+    //背景颜色
+    private int bg = 0x00000000;
+    private int bg2 = 0;
+    //十六进制 只加 第 三 4️ 位
 
     public PhotoView(Context context) {
         super(context);
@@ -141,6 +151,7 @@ public class PhotoView extends AppCompatImageView {
         float density = getResources().getDisplayMetrics().density;
         MAX_OVER_SCROLL = (int) (density * 30);
         MAX_FLING_OVER_SCROLL = (int) (density * 30);
+
         MAX_OVER_RESISTANCE = (int) (density * 140);
 
         mMinRotate = MIN_ROTATE;
@@ -520,6 +531,7 @@ public class PhotoView extends AppCompatImageView {
 
         imgLargeWidth = mImgRect.width() > mWidgetRect.width();
         imgLargeHeight = mImgRect.height() > mWidgetRect.height();
+
     }
 
     @Override
@@ -644,6 +656,13 @@ public class PhotoView extends AppCompatImageView {
     }
 
     private void onUp() {
+
+        if (Math.abs(mTranslateY) > MAX_OVER_RESISTANCE){
+            if (mScrollDismiss != null){
+                mScrollDismiss.dismiss();
+            }
+        }
+
         if (mTranslate.isRuning) return;
 
         if (canRotate || mDegrees % 90 != 0) {
@@ -776,6 +795,14 @@ public class PhotoView extends AppCompatImageView {
         return s;
     }
 
+    /**
+     * 计算y加上阻尼之后返回
+     * //为什么overScroll不会大于MAX_OVER
+     * @param overScroll 当前移动的总距离
+     * @param detalY 瞬时距离
+     *
+     * @return
+     */
     private float resistanceScrollByY(float overScroll, float detalY) {
         float s = detalY * (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE);
         return s;
@@ -846,6 +873,8 @@ public class PhotoView extends AppCompatImageView {
             if (!imgLargeWidth && !imgLargeHeight) return false;
             if (mTranslate.isRuning) return false;
 
+            System.out.println("PhotoView.onFling --------");
+
             float vx = velocityX;
             float vy = velocityY;
 
@@ -882,9 +911,11 @@ public class PhotoView extends AppCompatImageView {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //distanceY是每次执行方法时移动的距离，不是总距离
             if (mTranslate.isRuning) {
                 mTranslate.stop();
             }
+
 
             if (canScrollHorizontallySelf(distanceX)) {
                 if (distanceX < 0 && mImgRect.left - distanceX > mWidgetRect.left)
@@ -894,20 +925,24 @@ public class PhotoView extends AppCompatImageView {
 
                 mAnimaMatrix.postTranslate(-distanceX, 0);
                 mTranslateX -= distanceX;
-            } else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
-                checkRect();
-                if (!hasMultiTouch) {
-                    if (distanceX < 0 && mImgRect.left - distanceX > mCommonRect.left)
-                        distanceX = resistanceScrollByX(mImgRect.left - mCommonRect.left, distanceX);
-                    if (distanceX > 0 && mImgRect.right - distanceX < mCommonRect.right)
-                        distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
-                }
-
-                mTranslateX -= distanceX;
-                mAnimaMatrix.postTranslate(-distanceX, 0);
-                hasOverTranslate = true;
+                System.out.println("PhotoView.onScroll   canHorizontal");
             }
-
+            //todo 取消横向滑动
+//            else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
+//                checkRect();
+//                if (!hasMultiTouch) {
+//                    if (distanceX < 0 && mImgRect.left - distanceX > mCommonRect.left)
+//                        distanceX = resistanceScrollByX(mImgRect.left - mCommonRect.left, distanceX);
+//                    if (distanceX > 0 && mImgRect.right - distanceX < mCommonRect.right)
+//                        distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
+//                }
+//
+//                mTranslateX -= distanceX;
+//                mAnimaMatrix.postTranslate(-distanceX, 0);
+//                hasOverTranslate = true;
+//                System.out.println("PhotoView.onScroll    else 1");
+//            }
+            //图片高度大于控件高度时可以上下滑动
             if (canScrollVerticallySelf(distanceY)) {
                 if (distanceY < 0 && mImgRect.top - distanceY > mWidgetRect.top)
                     distanceY = mImgRect.top;
@@ -916,7 +951,8 @@ public class PhotoView extends AppCompatImageView {
 
                 mAnimaMatrix.postTranslate(0, -distanceY);
                 mTranslateY -= distanceY;
-            } else if (imgLargeHeight || hasOverTranslate || hasMultiTouch) {
+                System.out.println("PhotoView.onScroll  canVertical " + mTranslateY + " " + MAX_OVER_RESISTANCE);
+            } else if (imgLargeHeight || hasOverTranslate || !hasMultiTouch) {
                 checkRect();
                 if (!hasMultiTouch) {
                     if (distanceY < 0 && mImgRect.top - distanceY > mCommonRect.top)
@@ -928,20 +964,26 @@ public class PhotoView extends AppCompatImageView {
                 mAnimaMatrix.postTranslate(0, -distanceY);
                 mTranslateY -= distanceY;
                 hasOverTranslate = true;
+                System.out.println("PhotoView.onScroll  canVertical else " + mTranslateY + " " + MAX_OVER_RESISTANCE);
+                //
             }
 
             executeTranslate();
             return true;
         }
 
+        //单指点击
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             postDelayed(mClickRunnable, 250);
             return false;
         }
 
+        //双击
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+
+            System.out.println("PhotoView.onDoubleTap ");
 
             mTranslate.stop();
 
@@ -1197,6 +1239,7 @@ public class PhotoView extends AppCompatImageView {
                 applyAnima();
                 postExecute();
             } else {
+//                setBackgroundColor(0xff000000);
                 isRuning = false;
 
                 // 修复动画结束后边距有些空隙，
@@ -1406,6 +1449,7 @@ public class PhotoView extends AppCompatImageView {
 
     public void animaTo(Info info, Runnable completeCallBack) {
         if (isInit) {
+            this.setFocusable(false);
             mTranslate.stop();
 
             mTranslateX = 0;
@@ -1465,5 +1509,14 @@ public class PhotoView extends AppCompatImageView {
 
         mAnimaMatrix.postRotate(degrees, centerX, centerY);
         executeTranslate();
+    }
+
+    //这里是传入距离让外部自己计算还是内部计算
+    public interface IScrollDismiss{
+        void dismiss();
+    }
+
+    public void setScrollDismissListener(IScrollDismiss scrollDismiss){
+        this.mScrollDismiss = scrollDismiss;
     }
 }

@@ -5,6 +5,7 @@ package com.example.wdc.ui.activity.base;
 import android.app.ActivityManager;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleRegistry;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,8 +22,12 @@ import android.view.View;
 
 import com.example.wdc.loading.VaryViewHelperController;
 import com.example.wdc.ms.R;
+import com.example.wdc.receiver.net.INetWorkStateChange;
+import com.example.wdc.receiver.net.NetWorkReceiver;
 import com.example.wdc.utils.NetUtils;
 import com.example.wdc.utils.PrefUtil;
+
+import java.util.List;
 
 import butterknife.ButterKnife;
 
@@ -36,7 +41,7 @@ import butterknife.ButterKnife;
  * 如果要管理整个应用的生命周期应使用ProcessLifecycleOwner
  * 我们继承AppCompatActivity 默认已经帮我们实现了LifeCycleOwner接口
  */
-public abstract class BaseAppCompatActivity extends AppCompatActivity {
+public abstract class BaseAppCompatActivity extends AppCompatActivity implements INetWorkStateChange{
 
     //创建我们自定义的LifeCycle管理
     protected LifecycleRegistry mLifecycleRegistry;
@@ -62,6 +67,8 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
      * loading view controller
      */
     private VaryViewHelperController mVaryViewHelperController = null;
+
+    protected  NetWorkReceiver mNetReceiver;
 
     /**
      * overridePendingTransition mode
@@ -127,23 +134,9 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
             throw new IllegalArgumentException("You must return a right contentView layout resource Id");
         }
 
-//        //判断网络连接
-//        mNetChangeObserver = new NetChangeObserver() {
-//                @Override
-//                public void onNetConnected(NetUtils.NetType type) {
-//                    super.onNetConnected(type);
-//                    onNetworkConnected(type);
-//                }
-//
-//                @Override
-//                public void onNetDisConnect() {
-//                    super.onNetDisConnect();
-//                    onNetworkDisConnected();
-//                }
-//        };
-//        //将mNetChangeObserver 添加到 mNetChangeObservers这个list里
-//        NetStateReceiver.registerObserver(mNetChangeObserver);
-
+        //注册网络变化的广播
+        mNetReceiver = new NetWorkReceiver();
+        mNetReceiver.registerReceiver(this,this);
 
         initViewsAndEvents();
 
@@ -198,8 +191,8 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //移除mNetChangeObserver
-//        NetStateReceiver.removeRegisterObserver(mNetChangeObserver);
+        //移除mNetChangeReceiver
+        mNetReceiver.unregisterReceiver(this,this);
     }
 
     /**
@@ -241,13 +234,13 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
      * network connected
      * 网络连接
      */
-    protected abstract void onNetworkConnected(NetUtils.NetType type);
+//    protected abstract void onNetworkConnected();
 
     /**
      * network disconnected
      * 网络连接断开
      */
-    protected abstract void onNetworkDisConnected();
+//    protected abstract void onNetworkDisConnected();
 
     /**
      * is applyStatusBarTranslucency
@@ -438,6 +431,8 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
         super.onStart();
         System.out.println(this.getClass().getSimpleName() + "BaseAppCompatActivity.onStart");
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+
+        getTasks();
     }
 
     @Override
@@ -470,4 +465,22 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity {
         drawable.draw(canvas);
         return bitmap;
     }
+
+
+    private void getTasks(){
+        ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+
+        List<ActivityManager.RunningTaskInfo> info = manager.getRunningTasks(10);
+        String className = null;
+        if (info != null && !info.isEmpty()){
+            for (int i = 0; i < info.size(); i++) {
+                ActivityManager.RunningTaskInfo curInfo = info.get(i);
+                System.out.println("BaseAppCompatActivity.getTasks  " + TAG_LOG + "     " + info.get(i).topActivity.getClassName() + "   " + curInfo);
+            }
+        }else{
+            System.out.println("BaseAppCompatActivity.getTasks  " + info);
+        }
+
+    }
+
 }
