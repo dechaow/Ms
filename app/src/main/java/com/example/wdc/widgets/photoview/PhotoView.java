@@ -2,6 +2,7 @@ package com.example.wdc.widgets.photoview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -22,6 +23,7 @@ import android.widget.Scroller;
 
 import com.example.wdc.ms.R;
 
+
 /**
  * Created by dechao on 2018/3/15.
  *
@@ -33,22 +35,22 @@ import com.example.wdc.ms.R;
 
 public class PhotoView extends AppCompatImageView {
 
-//    private final static int MIN_ROTATE = 35;
+    private final static int MIN_ROTATE = 35;
     //这里动画时间过长会发现matrix缩放明显有卡顿
-    private final static int ANIMA_DURING = 300;
-    //最大缩放尺寸
+    private final static int ANIMA_DURING = 320;
     private final static float MAX_SCALE = 2.5f;
 
-//    private int mMinRotate;
+    private int mMinRotate;
     private int mAnimaDuring;
     private float mMaxScale;
 
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
+    //这个是最大可滑动距离
     private int MAX_OVER_RESISTANCE = 0;
     private int MAX_ANIM_FROM_WAITE = 500;
 
-    //原来的矩阵
+    //保存初始位置的矩阵
     private Matrix mBaseMatrix = new Matrix();
     //执行动画的矩阵
     private Matrix mAnimaMatrix = new Matrix();
@@ -58,7 +60,7 @@ public class PhotoView extends AppCompatImageView {
     private Matrix mTmpMatrix = new Matrix();
 
     //旋转手势
-//    private RotateGestureDetector mRotateDetector;
+    private RotateGestureDetector mRotateDetector;
     //普通手势？？？
     private GestureDetector mDetector;
     //缩放手势
@@ -69,17 +71,20 @@ public class PhotoView extends AppCompatImageView {
 
     //判断是否有多跟手指触摸
     private boolean hasMultiTouch;
+    //有没有背景
     private boolean hasDrawable;
+    //获取不到大小
     private boolean isKnowSize;
     private boolean hasOverTranslate;
     private boolean isEnable = false;
-//    private boolean isRotateEnable = false;
+    private boolean isRotateEnable = false;
     private boolean isInit;
     private boolean mAdjustViewBounds;
     // 当前是否处于放大状态
     private boolean isZoonUp;
-//    private boolean canRotate;
+    private boolean canRotate;
 
+    //判断图片的宽高是否大于控件的宽高
     private boolean imgLargeWidth;
     private boolean imgLargeHeight;
 
@@ -87,21 +92,25 @@ public class PhotoView extends AppCompatImageView {
     private float mDegrees;
     private float mScale = 1.0f;
     private int mTranslateX;
+    //纵向滑动距离
     private int mTranslateY;
 
+    //baseRect宽高的中点，也就是base的中心
     private float mHalfBaseRectWidth;
     private float mHalfBaseRectHeight;
-
+    //控件的rect？
     private RectF mWidgetRect = new RectF();
     //原始图片位置
     private RectF mBaseRect = new RectF();
     private RectF mImgRect = new RectF();
     private RectF mTmpRect = new RectF();
     private RectF mCommonRect = new RectF();
-
+    //这个是view大小的中点
     private PointF mScreenCenter = new PointF();
+    //缩放的中点
     private PointF mScaleCenter = new PointF();
-//    private PointF mRotateCenter = new PointF();
+    //旋转的中点
+    private PointF mRotateCenter = new PointF();
 
     private Transform mTranslate = new Transform();
 
@@ -111,6 +120,12 @@ public class PhotoView extends AppCompatImageView {
     private Runnable mCompleteCallBack;
 
     private OnLongClickListener mLongClick;
+
+    private IScrollDismiss mScrollDismiss;
+    //背景颜色
+    private int bg = 0x00000000;
+    private int bg2 = 0;
+    //十六进制 只加 第 三 4️ 位
 
     public PhotoView(Context context) {
         super(context);
@@ -130,15 +145,16 @@ public class PhotoView extends AppCompatImageView {
     private void init() {
         super.setScaleType(ScaleType.MATRIX);
         if (mScaleType == null) mScaleType = ScaleType.CENTER_INSIDE;
-//        mRotateDetector = new RotateGestureDetector(mRotateListener);
+        mRotateDetector = new RotateGestureDetector(mRotateListener);
         mDetector = new GestureDetector(getContext(), mGestureListener);
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
         float density = getResources().getDisplayMetrics().density;
         MAX_OVER_SCROLL = (int) (density * 30);
         MAX_FLING_OVER_SCROLL = (int) (density * 30);
+
         MAX_OVER_RESISTANCE = (int) (density * 140);
 
-//        mMinRotate = MIN_ROTATE;
+        mMinRotate = MIN_ROTATE;
         mAnimaDuring = ANIMA_DURING;
         mMaxScale = MAX_SCALE;
     }
@@ -147,7 +163,7 @@ public class PhotoView extends AppCompatImageView {
     protected void onDraw(Canvas canvas) {
         try {
             super.onDraw(canvas);
-        }catch (Exception e){
+        } catch (Exception e) {
             this.setImageResource(R.drawable.pic_loading);
         }
     }
@@ -235,16 +251,16 @@ public class PhotoView extends AppCompatImageView {
     /**
      * 启用旋转功能
      */
-//    public void enableRotate() {
-//        isRotateEnable = true;
-//    }
+    public void enableRotate() {
+        isRotateEnable = true;
+    }
 
     /**
      * 禁用旋转功能
      */
-//    public void disableRotate() {
-//        isRotateEnable = false;
-//    }
+    public void disableRotate() {
+        isRotateEnable = false;
+    }
 
     /**
      */
@@ -306,10 +322,10 @@ public class PhotoView extends AppCompatImageView {
     }
 
     private void initBase() {
-        System.out.println("PhotoView.initBase  ---------base");
         if (!hasDrawable) return;
         if (!isKnowSize) return;
 
+        //重置 动画matrix 和 base matrix
         mBaseMatrix.reset();
         mAnimaMatrix.reset();
 
@@ -317,17 +333,22 @@ public class PhotoView extends AppCompatImageView {
 
         Drawable img = getDrawable();
 
+        //view宽度
         int w = getWidth();
+        //view高度
         int h = getHeight();
+        //图片宽度
         int imgw = getDrawableWidth(img);
+        //图片高度
         int imgh = getDrawableHeight(img);
-
+        //base rect 设置为和图片宽高一致
         mBaseRect.set(0, 0, imgw, imgh);
 
         // 以图片中心点居中位移
+        // 求宽高的中心点，为了下面postTranslate显示图片中心的位置
         int tx = (w - imgw) / 2;
         int ty = (h - imgh) / 2;
-
+        //缩放显示
         float sx = 1;
         float sy = 1;
 
@@ -342,16 +363,21 @@ public class PhotoView extends AppCompatImageView {
 
         float scale = sx < sy ? sx : sy;
 
+        //移动到中心点，然后缩放
         mBaseMatrix.reset();
         mBaseMatrix.postTranslate(tx, ty);
         mBaseMatrix.postScale(scale, scale, mScreenCenter.x, mScreenCenter.y);
+        System.out.println("PhotoView.initBase BaseRect before " + mBaseRect);
+        //将rect进行matrix变换之后返回之后的rect
         mBaseMatrix.mapRect(mBaseRect);
+
+        System.out.println("PhotoView.initBase   BaseRect : " + mBaseRect);
 
         mHalfBaseRectWidth = mBaseRect.width() / 2;
         mHalfBaseRectHeight = mBaseRect.height() / 2;
 
         mScaleCenter.set(mScreenCenter);
-//        mRotateCenter.set(mScaleCenter);
+        mRotateCenter.set(mScaleCenter);
 
         executeTranslate();
 
@@ -495,38 +521,17 @@ public class PhotoView extends AppCompatImageView {
         mAnimaMatrix.reset();
     }
 
-    private void resetBase(int top) {
-        Drawable img = getDrawable();
-        int imgw = getDrawableWidth(img);
-        int imgh = getDrawableHeight(img);
-        mBaseRect.set(0, top, imgw, imgh);
-        mBaseMatrix.set(mSynthesisMatrix);
-        mBaseMatrix.mapRect(mBaseRect);
-        mHalfBaseRectWidth = mBaseRect.width() / 2;
-        mHalfBaseRectHeight = mBaseRect.height() / 2;
-        mScale = 1;
-        mTranslateX = 0;
-        mTranslateY = 0;
-        mAnimaMatrix.reset();
-    }
-
     private void executeTranslate() {
         mSynthesisMatrix.set(mBaseMatrix);
+        //合并两个matrix？？
         mSynthesisMatrix.postConcat(mAnimaMatrix);
         setImageMatrix(mSynthesisMatrix);
-        //这里imagerect会为负数，由于tranY增加的原因
-        //如果为负数的话就会显示不全，如何解决？
-        System.out.println("PhotoView.executeTranslate  mImgRect0  top = " +mImgRect.top + "  bottom = " + mImgRect.bottom + "   left = " + mImgRect.left + "   right = " + mImgRect.right );
-        System.out.println("PhotoView.executeTranslate  mBaseRect0  top = " +mBaseRect.top + "  bottom = " + mBaseRect.bottom + "   left = " + mBaseRect.left + "   right = " + mBaseRect.right );
 
         mAnimaMatrix.mapRect(mImgRect, mBaseRect);
 
-        System.out.println("PhotoView.executeTranslate  mImgRect1  top = " +mImgRect.top + "  bottom = " + mImgRect.bottom + "   left = " + mImgRect.left + "   right = " + mImgRect.right );
-        System.out.println("PhotoView.executeTranslate  mBaseRect1  top = " +mBaseRect.top + "  bottom = " + mBaseRect.bottom + "   left = " + mBaseRect.left + "   right = " + mBaseRect.right );
-
-
         imgLargeWidth = mImgRect.width() > mWidgetRect.width();
         imgLargeHeight = mImgRect.height() > mWidgetRect.height();
+
     }
 
     @Override
@@ -611,7 +616,9 @@ public class PhotoView extends AppCompatImageView {
         super.onSizeChanged(w, h, oldw, oldh);
 
         mWidgetRect.set(0, 0, w, h);
+        //这个是view宽高的中心
         mScreenCenter.set(w / 2, h / 2);
+        System.out.println("PhotoView.onSizeChanged   " + w + "    " + h);
 
         if (!isKnowSize) {
             isKnowSize = true;
@@ -635,18 +642,12 @@ public class PhotoView extends AppCompatImageView {
             if (event.getPointerCount() >= 2) hasMultiTouch = true;
 
             mDetector.onTouchEvent(event);
-//            if (isRotateEnable) {
-//                mRotateDetector.onTouchEvent(event);
-//            }
+            if (isRotateEnable) {
+                mRotateDetector.onTouchEvent(event);
+            }
             mScaleDetector.onTouchEvent(event);
 
-            if (Action == MotionEvent.ACTION_UP) onUp();
-
-            if (Action == MotionEvent.ACTION_CANCEL && event.getPointerCount()>1){
-                //单点cancel不拦截
-                onUp();
-            }
-//            if (Action == MotionEvent.ACTION_UP) onUp();
+            if (Action == MotionEvent.ACTION_UP || Action == MotionEvent.ACTION_CANCEL) onUp();
 
             return true;
         } else {
@@ -654,25 +655,29 @@ public class PhotoView extends AppCompatImageView {
         }
     }
 
-    //因为调用了这个方法，所以image才会在reset的时候回不到原来的地方
-    //所以 tmp的位移距离不对也是由于这个引起的
-    public void onUp() {
-        System.out.println("PhotoView.onUp   end up -------------- "  + mTranslate.isRuning);
+    private void onUp() {
+
+        if (Math.abs(mTranslateY) > MAX_OVER_RESISTANCE){
+            if (mScrollDismiss != null){
+                mScrollDismiss.dismiss();
+            }
+        }
+
         if (mTranslate.isRuning) return;
 
-//        if (canRotate || mDegrees % 90 != 0) {
-//            float toDegrees = (int) (mDegrees / 90) * 90;
-//            float remainder = mDegrees % 90;
-//
-//            if (remainder > 45)
-//                toDegrees += 90;
-//            else if (remainder < -45)
-//                toDegrees -= 90;
-//
-//            mTranslate.withRotate((int) mDegrees, (int) toDegrees);
-//
-//            mDegrees = toDegrees;
-//        }
+        if (canRotate || mDegrees % 90 != 0) {
+            float toDegrees = (int) (mDegrees / 90) * 90;
+            float remainder = mDegrees % 90;
+
+            if (remainder > 45)
+                toDegrees += 90;
+            else if (remainder < -45)
+                toDegrees -= 90;
+
+            mTranslate.withRotate((int) mDegrees, (int) toDegrees);
+
+            mDegrees = toDegrees;
+        }
 
         float scale = mScale;
 
@@ -688,22 +693,19 @@ public class PhotoView extends AppCompatImageView {
         float cy = mImgRect.top + mImgRect.height() / 2;
 
         mScaleCenter.set(cx, cy);
-//        mRotateCenter.set(cx, cy);
+        mRotateCenter.set(cx, cy);
 
         mTranslateX = 0;
         mTranslateY = 0;
 
         mTmpMatrix.reset();
-        //移动x,y坐标
         mTmpMatrix.postTranslate(-mBaseRect.left, -mBaseRect.top);
         mTmpMatrix.postTranslate(cx - mHalfBaseRectWidth, cy - mHalfBaseRectHeight);
         mTmpMatrix.postScale(scale, scale, cx, cy);
         mTmpMatrix.postRotate(mDegrees, cx, cy);
-        //将这个矩阵应用到mBaseRect矩形，并将转换后的矩形写入mTmpRect。 这是通过转换mBaseRect的四个角，然后将mTmpRect设置到这些点的边界来实现的。
         mTmpMatrix.mapRect(mTmpRect, mBaseRect);
 
         doTranslateReset(mTmpRect);
-        System.out.println("PhotoView.onUp --------------- onUp   " + mImgRect);
         mTranslate.start();
     }
 
@@ -747,22 +749,22 @@ public class PhotoView extends AppCompatImageView {
         return Math.abs(Math.round(rect.left) - (mWidgetRect.width() - rect.width()) / 2) < 1;
     }
 
-//    private OnRotateListener mRotateListener = new OnRotateListener() {
-//
-//        @Override
-//        public void onRotate(float degrees, float focusX, float focusY) {
-//            mRotateFlag += degrees;
-//            if (canRotate) {
-//                mDegrees += degrees;
-//                mAnimaMatrix.postRotate(degrees, focusX, focusY);
-//            } else {
-//                if (Math.abs(mRotateFlag) >= mMinRotate) {
-//                    canRotate = true;
-//                    mRotateFlag = 0;
-//                }
-//            }
-//        }
-//    };
+    private OnRotateListener mRotateListener = new OnRotateListener() {
+
+        @Override
+        public void onRotate(float degrees, float focusX, float focusY) {
+            mRotateFlag += degrees;
+            if (canRotate) {
+                mDegrees += degrees;
+                mAnimaMatrix.postRotate(degrees, focusX, focusY);
+            } else {
+                if (Math.abs(mRotateFlag) >= mMinRotate) {
+                    canRotate = true;
+                    mRotateFlag = 0;
+                }
+            }
+        }
+    };
 
     private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
@@ -775,7 +777,6 @@ public class PhotoView extends AppCompatImageView {
             mScale *= scaleFactor;
 //            mScaleCenter.set(detector.getFocusX(), detector.getFocusY());
             mAnimaMatrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
-            System.out.println("PhotoView.onScale  -----------------------------");
             executeTranslate();
             return true;
         }
@@ -794,8 +795,15 @@ public class PhotoView extends AppCompatImageView {
         return s;
     }
 
+    /**
+     * 计算y加上阻尼之后返回
+     * //为什么overScroll不会大于MAX_OVER
+     * @param overScroll 当前移动的总距离
+     * @param detalY 瞬时距离
+     *
+     * @return
+     */
     private float resistanceScrollByY(float overScroll, float detalY) {
-        System.out.println("PhotoView.resistanceScrollByY    " + (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE) + "    " + overScroll);
         float s = detalY * (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE);
         return s;
     }
@@ -828,7 +836,6 @@ public class PhotoView extends AppCompatImageView {
 
     private void checkRect() {
         if (!hasOverTranslate) {
-            System.out.println("PhotoView.checkRect PhotoView.onScroll --------------------------------");
             mapRect(mWidgetRect, mImgRect, mCommonRect);
         }
     }
@@ -855,19 +862,18 @@ public class PhotoView extends AppCompatImageView {
         public boolean onDown(MotionEvent e) {
             hasOverTranslate = false;
             hasMultiTouch = false;
-//            canRotate = false;
+            canRotate = false;
             removeCallbacks(mClickRunnable);
             return false;
         }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            //两个手指滑动后返回原状的执行方法，也许我可以直接监听这个让他dismiss
-            //这里 如果是多个手指点击直接return false了
-            System.out.println("PhotoView.onFling -------------------------------------------");
             if (hasMultiTouch) return false;
             if (!imgLargeWidth && !imgLargeHeight) return false;
             if (mTranslate.isRuning) return false;
+
+            System.out.println("PhotoView.onFling --------");
 
             float vx = velocityX;
             float vy = velocityY;
@@ -880,21 +886,19 @@ public class PhotoView extends AppCompatImageView {
                 vy = 0;
             }
 
-//            if (canRotate || mDegrees % 90 != 0) {
-//                float toDegrees = (int) (mDegrees / 90) * 90;
-//                float remainder = mDegrees % 90;
-//
-//                if (remainder > 45)
-//                    toDegrees += 90;
-//                else if (remainder < -45)
-//                    toDegrees -= 90;
-//
-//                mTranslate.withRotate((int) mDegrees, (int) toDegrees);
-//
-//                mDegrees = toDegrees;
-//            }
-            System.out.println("PhotoView.onFling  mImgRect  top = " +mImgRect.top + "  bottom = " + mImgRect.bottom + "   left = " + mImgRect.left + "   right = " + mImgRect.right );
+            if (canRotate || mDegrees % 90 != 0) {
+                float toDegrees = (int) (mDegrees / 90) * 90;
+                float remainder = mDegrees % 90;
 
+                if (remainder > 45)
+                    toDegrees += 90;
+                else if (remainder < -45)
+                    toDegrees -= 90;
+
+                mTranslate.withRotate((int) mDegrees, (int) toDegrees);
+
+                mDegrees = toDegrees;
+            }
 
             doTranslateReset(mImgRect);
 
@@ -907,12 +911,13 @@ public class PhotoView extends AppCompatImageView {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //distanceY是每次执行方法时移动的距离，不是总距离
             if (mTranslate.isRuning) {
                 mTranslate.stop();
             }
 
+
             if (canScrollHorizontallySelf(distanceX)) {
-                System.out.println("PhotoView.onScroll1     " + distanceY);
                 if (distanceX < 0 && mImgRect.left - distanceX > mWidgetRect.left)
                     distanceX = mImgRect.left;
                 if (distanceX > 0 && mImgRect.right - distanceX < mWidgetRect.right)
@@ -920,23 +925,25 @@ public class PhotoView extends AppCompatImageView {
 
                 mAnimaMatrix.postTranslate(-distanceX, 0);
                 mTranslateX -= distanceX;
-            } else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
-                System.out.println("PhotoView.onScroll2    " + distanceY);
-                checkRect();
-                if (!hasMultiTouch) {
-                    if (distanceX < 0 && mImgRect.left - distanceX > mCommonRect.left)
-                        distanceX = resistanceScrollByX(mImgRect.left - mCommonRect.left, distanceX);
-                    if (distanceX > 0 && mImgRect.right - distanceX < mCommonRect.right)
-                        distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
-                }
-
-                mTranslateX -= distanceX;
-                mAnimaMatrix.postTranslate(-distanceX, 0);
-                hasOverTranslate = true;
+                System.out.println("PhotoView.onScroll   canHorizontal");
             }
-
+            //todo 取消横向滑动
+//            else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
+//                checkRect();
+//                if (!hasMultiTouch) {
+//                    if (distanceX < 0 && mImgRect.left - distanceX > mCommonRect.left)
+//                        distanceX = resistanceScrollByX(mImgRect.left - mCommonRect.left, distanceX);
+//                    if (distanceX > 0 && mImgRect.right - distanceX < mCommonRect.right)
+//                        distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
+//                }
+//
+//                mTranslateX -= distanceX;
+//                mAnimaMatrix.postTranslate(-distanceX, 0);
+//                hasOverTranslate = true;
+//                System.out.println("PhotoView.onScroll    else 1");
+//            }
+            //图片高度大于控件高度时可以上下滑动
             if (canScrollVerticallySelf(distanceY)) {
-                System.out.println("PhotoView.onScroll3     " + distanceY);
                 if (distanceY < 0 && mImgRect.top - distanceY > mWidgetRect.top)
                     distanceY = mImgRect.top;
                 if (distanceY > 0 && mImgRect.bottom - distanceY < mWidgetRect.bottom)
@@ -944,8 +951,8 @@ public class PhotoView extends AppCompatImageView {
 
                 mAnimaMatrix.postTranslate(0, -distanceY);
                 mTranslateY -= distanceY;
-            } else if (imgLargeHeight || hasOverTranslate || hasMultiTouch) {
-                System.out.println("PhotoView.onScroll4     " + distanceY);
+                System.out.println("PhotoView.onScroll  canVertical " + mTranslateY + " " + MAX_OVER_RESISTANCE);
+            } else if (imgLargeHeight || hasOverTranslate || !hasMultiTouch) {
                 checkRect();
                 if (!hasMultiTouch) {
                     if (distanceY < 0 && mImgRect.top - distanceY > mCommonRect.top)
@@ -957,25 +964,27 @@ public class PhotoView extends AppCompatImageView {
                 mAnimaMatrix.postTranslate(0, -distanceY);
                 mTranslateY -= distanceY;
                 hasOverTranslate = true;
+                System.out.println("PhotoView.onScroll  canVertical else " + mTranslateY + " " + MAX_OVER_RESISTANCE);
+                //
             }
 
-            System.out.println("PhotoView.onScroll --------------------------------  " + mImgRect + "  " + mTmpRect + "   " + mTranslateY + "   ");
             executeTranslate();
             return true;
         }
 
+        //单指点击
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            //单指点击dismiss
-            System.out.println("PhotoView.onSingleTapUp");
             postDelayed(mClickRunnable, 250);
             return false;
         }
 
+        //双击
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            //这个不是两个指头的事件吗，为什么一次都不会触发呢
-            System.out.println("PhotoView.onDoubleTap");
+
+            System.out.println("PhotoView.onDoubleTap ");
+
             mTranslate.stop();
 
             float from = 1;
@@ -985,7 +994,7 @@ public class PhotoView extends AppCompatImageView {
             float imgcy = mImgRect.top + mImgRect.height() / 2;
 
             mScaleCenter.set(imgcx, imgcy);
-//            mRotateCenter.set(imgcx, imgcy);
+            mRotateCenter.set(imgcx, imgcy);
             mTranslateX = 0;
             mTranslateY = 0;
 
@@ -1001,9 +1010,9 @@ public class PhotoView extends AppCompatImageView {
 
             mTmpMatrix.reset();
             mTmpMatrix.postTranslate(-mBaseRect.left, -mBaseRect.top);
-//            mTmpMatrix.postTranslate(mRotateCenter.x, mRotateCenter.y);
+            mTmpMatrix.postTranslate(mRotateCenter.x, mRotateCenter.y);
             mTmpMatrix.postTranslate(-mHalfBaseRectWidth, -mHalfBaseRectHeight);
-//            mTmpMatrix.postRotate(mDegrees, mRotateCenter.x, mRotateCenter.y);
+            mTmpMatrix.postRotate(mDegrees, mRotateCenter.x, mRotateCenter.y);
             mTmpMatrix.postScale(to, to, mScaleCenter.x, mScaleCenter.y);
             mTmpMatrix.postTranslate(mTranslateX, mTranslateY);
             mTmpMatrix.mapRect(mTmpRect, mBaseRect);
@@ -1106,7 +1115,6 @@ public class PhotoView extends AppCompatImageView {
         void withTranslate(int startX, int startY, int deltaX, int deltaY) {
             mLastTranslateX = 0;
             mLastTranslateY = 0;
-            //滑回原来的位置
             mTranslateScroller.startScroll(0, 0, deltaX, deltaY, mAnimaDuring);
         }
 
@@ -1172,9 +1180,6 @@ public class PhotoView extends AppCompatImageView {
         @Override
         public void run() {
 
-//            System.out.println("Transform.run  mLastTranslateY " + mTranslateScroller.getCurrY() + "   " + mTranslateScroller.getFinalY()  + "    " + mTranslateScroller.getStartY());
-            System.out.println("Transform.run  mScaleScroller " + mScaleScroller.getCurrY() + "   " + mScaleScroller.getFinalY()  + "    " + mScaleScroller.getStartY());
-            System.out.println("Transform.run  mFlingScroller " + mFlingScroller.getCurrY() + "   " + mFlingScroller.getFinalY()  + "    " + mFlingScroller.getStartY());
             // if (!isRuning) return;
 
             boolean endAnima = true;
@@ -1228,14 +1233,13 @@ public class PhotoView extends AppCompatImageView {
                 }
 
                 mClip = mClipRect;
-
-                System.out.println("Transform.run  mClip  " + mClipRect.top + "    " + mClipRect.bottom + "     " + mClipScroller.computeScrollOffset() + "   " + mClip);
             }
 
             if (!endAnima) {
                 applyAnima();
                 postExecute();
             } else {
+//                setBackgroundColor(0xff000000);
                 isRuning = false;
 
                 // 修复动画结束后边距有些空隙，
@@ -1275,13 +1279,12 @@ public class PhotoView extends AppCompatImageView {
         private void applyAnima() {
             mAnimaMatrix.reset();
             mAnimaMatrix.postTranslate(-mBaseRect.left, -mBaseRect.top);
-//            mAnimaMatrix.postTranslate(mRotateCenter.x, mRotateCenter.y);
+            mAnimaMatrix.postTranslate(mRotateCenter.x, mRotateCenter.y);
             mAnimaMatrix.postTranslate(-mHalfBaseRectWidth, -mHalfBaseRectHeight);
-//            mAnimaMatrix.postRotate(mDegrees, mRotateCenter.x, mRotateCenter.y);
+            mAnimaMatrix.postRotate(mDegrees, mRotateCenter.x, mRotateCenter.y);
             mAnimaMatrix.postScale(mScale, mScale, mScaleCenter.x, mScaleCenter.y);
             mAnimaMatrix.postTranslate(mTranslateX, mTranslateY);
             executeTranslate();
-            System.out.println("Transform.applyAnima postY -------   " + mTranslateY);
         }
 
 
@@ -1294,42 +1297,36 @@ public class PhotoView extends AppCompatImageView {
         RectF rect = new RectF();
         int[] p = new int[2];
         getLocation(this, p);
+        System.out.println("PhotoView.getInfo  ppppppppppp  " + p[0] + "   " +p[1] );
         rect.set(p[0] + mImgRect.left, p[1] + mImgRect.top, p[0] + mImgRect.right, p[1] + mImgRect.bottom);
+        System.out.println("PhotoView.getInfo mImgRect    " + mImgRect);
+        System.out.println("PhotoView.getInfo rect        " + rect);
+        System.out.println("PhotoView.getInfo mBaseRect   " + mBaseRect);
+        System.out.println("PhotoView.getInfo mWidgetRect " + mWidgetRect);
         return new Info(rect, mImgRect, mWidgetRect, mBaseRect, mScreenCenter, mScale, mDegrees, mScaleType);
     }
 
-    public Info getInfo(int top,int bottom) {
-        RectF rect = new RectF();
-        int[] p = new int[2];
-        getLocation(this, p);
-        System.out.println("PhotoView.getInfo  " + p[0] + "   " + p[1] + "   " + mImgRect.left + "   " + mImgRect.top + "    " + top);
-//        mImgRect.set(mImgRect.left,mImgRect.top+top,mImgRect.right,mImgRect.bottom);
-
-        rect.set(p[0] + mImgRect.left, p[1] + mImgRect.top, p[0] + mImgRect.right, p[1] + mImgRect.bottom);
-        return new Info(rect, mImgRect, mWidgetRect, mBaseRect, mScreenCenter, mScale, mDegrees, mScaleType);
-    }
-
-    public static Info getImageViewInfo(ImageView imgView) {
-        int[] p = new int[2];
-        getLocation(imgView, p);
-
-        Drawable drawable = imgView.getDrawable();
-
-        Matrix matrix = imgView.getImageMatrix();
-
-        int width = getDrawableWidth(drawable);
-        int height = getDrawableHeight(drawable);
-
-        RectF imgRect = new RectF(0, 0, width, height);
-        matrix.mapRect(imgRect);
-
-        RectF rect = new RectF(p[0] + imgRect.left, p[1] + imgRect.top, p[0] + imgRect.right, p[1] + imgRect.bottom);
-        RectF widgetRect = new RectF(0, 0, imgView.getWidth(), imgView.getHeight());
-        RectF baseRect = new RectF(widgetRect);
-        PointF screenCenter = new PointF(widgetRect.width() / 2, widgetRect.height() / 2);
-
-        return new Info(rect, imgRect, widgetRect, baseRect, screenCenter, 1, 0, imgView.getScaleType());
-    }
+//    public static Info getImageViewInfo(ImageView imgView) {
+//        int[] p = new int[2];
+//        getLocation(imgView, p);
+//
+//        Drawable drawable = imgView.getDrawable();
+//
+//        Matrix matrix = imgView.getImageMatrix();
+//
+//        int width = getDrawableWidth(drawable);
+//        int height = getDrawableHeight(drawable);
+//
+//        RectF imgRect = new RectF(0, 0, width, height);
+//        matrix.mapRect(imgRect);
+//
+//        RectF rect = new RectF(p[0] + imgRect.left, p[1] + imgRect.top, p[0] + imgRect.right, p[1] + imgRect.bottom);
+//        RectF widgetRect = new RectF(0, 0, imgView.getWidth(), imgView.getHeight());
+//        RectF baseRect = new RectF(widgetRect);
+//        PointF screenCenter = new PointF(widgetRect.width() / 2, widgetRect.height() / 2);
+//
+//        return new Info(rect, imgRect, widgetRect, baseRect, screenCenter, 1, 0, imgView.getScaleType());
+//    }
 
     private static void getLocation(View target, int[] position) {
 
@@ -1353,7 +1350,6 @@ public class PhotoView extends AppCompatImageView {
 
         position[0] = (int) (position[0] + 0.5f);
         position[1] = (int) (position[1] + 0.5f);
-        System.out.println("PhotoView.getLocation --------   " + position[0] + "   " + position[1]);
     }
 
     private void reset() {
@@ -1396,9 +1392,14 @@ public class PhotoView extends AppCompatImageView {
      */
     public void animaFrom(Info info) {
         if (isInit) {
+
+            System.out.println("PhotoView.animaFrom   11 :" + info.mRect.left + "    " + info.mRect.top);
             reset();
 
             Info mine = getInfo();
+
+            System.out.println("PhotoView.animaFrom   22 :" + mine.mRect.left + "    " + mine.mRect.top);
+
 
             float scaleX = info.mImgRect.width() / mine.mImgRect.width();
             float scaleY = info.mImgRect.height() / mine.mImgRect.height();
@@ -1418,7 +1419,7 @@ public class PhotoView extends AppCompatImageView {
             executeTranslate();
 
             mScaleCenter.set(ocx, ocy);
-//            mRotateCenter.set(ocx, ocy);
+            mRotateCenter.set(ocx, ocy);
 
             mTranslate.withTranslate(0, 0, (int) -(ocx - mcx), (int) -(ocy - mcy));
             mTranslate.withScale(scale, 1);
@@ -1447,27 +1448,8 @@ public class PhotoView extends AppCompatImageView {
     }
 
     public void animaTo(Info info, Runnable completeCallBack) {
-        System.out.println("PhotoView.animaTo  mImgRect  top = " +mImgRect.top + "  bottom = " + mImgRect.bottom + "   left = " + mImgRect.left + "   right = " + mImgRect.right );
-        System.out.println("PhotoView.animaTo  mBaseRect  top = " +mBaseRect.top + "  bottom = " + mBaseRect.bottom + "   left = " + mBaseRect.left + "   right = " + mBaseRect.right );
-        System.out.println("PhotoView.animaTo  mTmpRect  top = " +mTmpRect.top + "  bottom = " + mTmpRect.bottom + "   left = " + mTmpRect.left + "   right = " + mTmpRect.right );
-        System.out.println("PhotoView.animaTo  mWidgetRect  top = " +mWidgetRect.top + "  bottom = " + mWidgetRect.bottom + "   left = " + mWidgetRect.left + "   right = " + mWidgetRect.right );
-        System.out.println("PhotoView.animaTo  mCommonRect  top = " +mCommonRect.top + "  bottom = " + mCommonRect.bottom + "   left = " + mCommonRect.left + "   right = " + mCommonRect.right );
-
-        System.out.println("PhotoView.animaTo  info.mRect  top = " +info.mRect.top + "  bottom = " + info.mRect.bottom + "   left = " + info.mRect.left + "   right = " + info.mRect.right );
-        System.out.println("PhotoView.animaTo  info.mBaseRect  top = " +info.mBaseRect.top + "  bottom = " + info.mBaseRect.bottom + "   left = " + info.mBaseRect.left + "   right = " + info.mBaseRect.right );
-        System.out.println("PhotoView.animaTo  info.mImgRect  top = " +info.mImgRect.top + "  bottom = " + info.mImgRect.bottom + "   left = " + info.mImgRect.left + "   right = " + info.mImgRect.right );
-        System.out.println("PhotoView.animaTo  info.mWidgetRect  top = " +info.mWidgetRect.top + "  bottom = " + info.mWidgetRect.bottom + "   left = " + info.mWidgetRect.left + "   right = " + info.mWidgetRect.right );
-        System.out.println("\n\n");
-
-        //img    top -370
-        //tmp top - 280
-        //widget bottom -190
-        //common
-
-
-
-
         if (isInit) {
+            this.setFocusable(false);
             mTranslate.stop();
 
             mTranslateX = 0;
@@ -1477,7 +1459,7 @@ public class PhotoView extends AppCompatImageView {
             float tcy = info.mRect.top + info.mRect.height() / 2;
 
             mScaleCenter.set(mImgRect.left + mImgRect.width() / 2, mImgRect.top + mImgRect.height() / 2);
-//            mRotateCenter.set(mScaleCenter);
+            mRotateCenter.set(mScaleCenter);
 
             // 将图片旋转回正常位置，用以计算
             mAnimaMatrix.postRotate(-mDegrees, mScaleCenter.x, mScaleCenter.y);
@@ -1520,196 +1502,21 @@ public class PhotoView extends AppCompatImageView {
         }
     }
 
-    /**
-     * 上滑top为负
-     * @param info
-     * @param completeCallBack
-     * @param top
-     * @param bottom
-     */
-    public void animaTo(Info info, Runnable completeCallBack, final int top, int bottom) {
-        //使用这个只能把他回到原位置
-//        mTranslateY = top;
-//        mAnimaMatrix.postTranslate(0, top);
-//        executeTranslate();
-//        System.out.println("PhotoView.animaTo  releaseTop --------------   " + top);
-//        if (top > 0){
-        testTouch(0,-top);
-//        }
-//        onUp();
-//        postDelayed(mClickRunnable, 250);
-
-//        mAnimaMatrix.postTranslate(0, -top);
-//        mTranslateY = top;
-//        onUp();
-//        if (true){
-//            return;
-//        }
-
-//        doTranslateReset(mImgRect);
-//        mAnimaMatrix.postTranslate(0, -top);
-//        executeTranslate();
-//        ?onUp();
-
-        System.out.println("PhotoView.animaTo  mImgRect  top = " +mImgRect.top + "  bottom = " + mImgRect.bottom + "   left = " + mImgRect.left + "   right = " + mImgRect.right );
-        System.out.println("PhotoView.animaTo  mBaseRect  top = " +mBaseRect.top + "  bottom = " + mBaseRect.bottom + "   left = " + mBaseRect.left + "   right = " + mBaseRect.right );
-        System.out.println("PhotoView.animaTo  mTmpRect  top = " +mTmpRect.top + "  bottom = " + mTmpRect.bottom + "   left = " + mTmpRect.left + "   right = " + mTmpRect.right );
-        System.out.println("PhotoView.animaTo  mWidgetRect  top = " +mWidgetRect.top + "  bottom = " + mWidgetRect.bottom + "   left = " + mWidgetRect.left + "   right = " + mWidgetRect.right );
-        System.out.println("PhotoView.animaTo  mCommonRect  top = " +mCommonRect.top + "  bottom = " + mCommonRect.bottom + "   left = " + mCommonRect.left + "   right = " + mCommonRect.right );
-
-        System.out.println("PhotoView.animaTo  info.mRect  top = " +info.mRect.top + "  bottom = " + info.mRect.bottom + "   left = " + info.mRect.left + "   right = " + info.mRect.right );
-        System.out.println("PhotoView.animaTo  info.mBaseRect  top = " +info.mBaseRect.top + "  bottom = " + info.mBaseRect.bottom + "   left = " + info.mBaseRect.left + "   right = " + info.mBaseRect.right );
-        System.out.println("PhotoView.animaTo  info.mImgRect  top = " +info.mImgRect.top + "  bottom = " + info.mImgRect.bottom + "   left = " + info.mImgRect.left + "   right = " + info.mImgRect.right );
-        System.out.println("PhotoView.animaTo  info.mWidgetRect  top = " +info.mWidgetRect.top + "  bottom = " + info.mWidgetRect.bottom + "   left = " + info.mWidgetRect.left + "   right = " + info.mWidgetRect.right );
-
-
-//        System.out.println("\n");
-
-//        mImgRect.top-=top;
-//        mImgRect.bottom+=top;
-//        mTmpRect.top-=top;
-//        mTmpRect.bottom+=top;
-//
-//        mImgRect.top -=top;
-//        mImgRect.bottom-=top;
-//900 img
-        //tmp 700
-        // widget b 1800
-        //
-//        mImgRect.top +=top;
-//        mImgRect.bottom +=top;
-//        mWidgetRect.bottom *=2;
-
-
-
-        if (isInit) {
-
-//            mImgRect.offset(0,top);
-//            mBaseRect.offsetTo(0,top);
-
-            mTranslate.stop();
-
-            mTranslateX = 0;
-            mTranslateY = 0;
-
-            float tcx = info.mRect.left + info.mRect.width() / 2;
-            float tcy = info.mRect.top + info.mRect.height() / 2;
-
-            mScaleCenter.set(mImgRect.left + mImgRect.width() / 2, mImgRect.top + mImgRect.height() / 2);
-//            mRotateCenter.set(mScaleCenter);
-
-            // 将图片旋转回正常位置，用以计算
-            mAnimaMatrix.postRotate(-mDegrees, mScaleCenter.x, mScaleCenter.y);
-            mAnimaMatrix.mapRect(mImgRect, mBaseRect);
-
-            // 缩放
-            float scaleX = info.mImgRect.width() / mBaseRect.width();
-            float scaleY = info.mImgRect.height() / mBaseRect.height();
-            float scale = scaleX > scaleY ? scaleX : scaleY;
-
-            mAnimaMatrix.postRotate(mDegrees, mScaleCenter.x, mScaleCenter.y);
-            mAnimaMatrix.mapRect(mImgRect, mBaseRect);
-
-            mDegrees = mDegrees % 360;
-            //需要从滑动的地方执行动画
-            mTranslate.withTranslate(0, 0, (int) (tcx - mScaleCenter.x), (int) (tcy - mScaleCenter.y));
-            mTranslate.withScale(mScale, scale);
-            mTranslate.withRotate((int) mDegrees, (int) info.mDegrees, mAnimaDuring * 2 / 3);
-
-            if (info.mWidgetRect.width() < info.mRect.width() || info.mWidgetRect.height() < info.mRect.height()) {
-                //原来的大小
-                float clipX = info.mWidgetRect.width() / info.mRect.width();
-                float clipY = info.mWidgetRect.height() / info.mRect.height();
-
-                System.out.println("PhotoView.animaTo ----------------------------------- if   " + clipX  + "   " + clipY);
-
-                clipX = clipX > 1 ? 1 : clipX;
-                clipY = clipY > 1 ? 1 : clipY;
-
-                final float cx = clipX;
-                final float cy = clipY;
-                final ClipCalculate c = info.mScaleType == ScaleType.FIT_START ? new START() : info.mScaleType == ScaleType.FIT_END ? new END() : new OTHER();
-
-                postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTranslate.withClip(1, 1, -1 + cx, -1 + cy, mAnimaDuring / 2, c);
-                    }
-                }, mAnimaDuring/2);
-            }
-
-            mCompleteCallBack = completeCallBack;
-            mTranslate.start();
-        }
-    }
-
     public void rotate(float degrees) {
         mDegrees += degrees;
         int centerX = (int) (mWidgetRect.left + mWidgetRect.width() / 2);
-        int centerY = (int) (mWidgetRect.top + mWidgetRect.height() /2);
+        int centerY = (int) (mWidgetRect.top + mWidgetRect.height() / 2);
 
         mAnimaMatrix.postRotate(degrees, centerX, centerY);
         executeTranslate();
     }
 
-    public void testTouch(float distanceX,float distanceY){
-        hasMultiTouch = true;
-        if (mTranslate.isRuning) {
-            mTranslate.stop();
-        }
-
-        if (canScrollHorizontallySelf(distanceX)) {
-            System.out.println("PhotoView.onScroll1 testTouch   " + distanceY);
-            if (distanceX < 0 && mImgRect.left - distanceX > mWidgetRect.left)
-                distanceX = mImgRect.left;
-            if (distanceX > 0 && mImgRect.right - distanceX < mWidgetRect.right)
-                distanceX = mImgRect.right - mWidgetRect.right;
-
-            mAnimaMatrix.postTranslate(-distanceX, 0);
-            mTranslateX -= distanceX;
-        } else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
-            System.out.println("PhotoView.onScroll2 testTouch  " + distanceY);
-            checkRect();
-            if (!hasMultiTouch) {
-                if (distanceX < 0 && mImgRect.left - distanceX > mCommonRect.left)
-                    distanceX = resistanceScrollByX(mImgRect.left - mCommonRect.left, distanceX);
-                if (distanceX > 0 && mImgRect.right - distanceX < mCommonRect.right)
-                    distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
-            }
-
-            mTranslateX -= distanceX;
-            mAnimaMatrix.postTranslate(-distanceX, 0);
-            hasOverTranslate = true;
-        }
-
-        if (canScrollVerticallySelf(distanceY)) {
-            System.out.println("PhotoView.onScroll3 testTouch   " + distanceY);
-            if (distanceY < 0 && mImgRect.top - distanceY > mWidgetRect.top)
-                distanceY = mImgRect.top;
-            if (distanceY > 0 && mImgRect.bottom - distanceY < mWidgetRect.bottom)
-                distanceY = mImgRect.bottom - mWidgetRect.bottom;
-
-            mAnimaMatrix.postTranslate(0, -distanceY);
-            mTranslateY -= distanceY;
-        } else if (imgLargeHeight || hasOverTranslate || hasMultiTouch) {
-            System.out.println("PhotoView.onScroll4 testTouch " + distanceY);
-            checkRect();
-            if (!hasMultiTouch) {
-                if (distanceY < 0 && mImgRect.top - distanceY > mCommonRect.top)
-                    distanceY = resistanceScrollByY(mImgRect.top - mCommonRect.top, distanceY);
-                if (distanceY > 0 && mImgRect.bottom - distanceY < mCommonRect.bottom)
-                    distanceY = resistanceScrollByY(mImgRect.bottom - mCommonRect.bottom, distanceY);
-            }
-
-            mAnimaMatrix.postTranslate(0, -distanceY);
-            mTranslateY -= distanceY;
-            hasOverTranslate = true;
-        }
-        System.out.println("PhotoView.onScroll --------------------------------  " + mImgRect + "  " + mTmpRect + "   " + mTranslateY + "   ");
-        executeTranslate();
+    //这里是传入距离让外部自己计算还是内部计算
+    public interface IScrollDismiss{
+        void dismiss();
     }
 
-    public interface IFiling{
-
+    public void setScrollDismissListener(IScrollDismiss scrollDismiss){
+        this.mScrollDismiss = scrollDismiss;
     }
 }

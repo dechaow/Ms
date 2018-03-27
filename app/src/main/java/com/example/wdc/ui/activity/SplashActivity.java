@@ -75,22 +75,15 @@ public class SplashActivity extends BaseAppCompatActivity {
     }
 
     @Override
-    protected void onNetworkConnected(NetUtils.NetType type) {
-
+    public void onNetworkConnected() {
     }
 
     @Override
-    protected void onNetworkDisConnected() {
-
+    public void onNetworkDisConnected() {
     }
 
     @Override
     protected boolean isApplyStatusBarTranslucency() {
-        return false;
-    }
-
-    @Override
-    protected boolean isBindEventBusHere() {
         return false;
     }
 
@@ -203,15 +196,6 @@ public class SplashActivity extends BaseAppCompatActivity {
                     }
                 });
 
-//                for (String permission : permissions) {
-//
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                        if (!shouldShowRequestPermissionRationale(permission)) {
-//
-//
-//                        }
-//                    }
-//                }
             }
             return;
         }

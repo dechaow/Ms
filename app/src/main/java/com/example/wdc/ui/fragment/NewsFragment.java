@@ -1,9 +1,14 @@
 package com.example.wdc.ui.fragment;
 
+import android.app.Activity;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.wdc.ViewModelFactory;
 import com.example.wdc.adapter.NewsListAdapter;
 import com.example.wdc.bean.news.NewsBean;
 import com.example.wdc.bean.news.NewsListBean;
@@ -73,7 +79,7 @@ public class NewsFragment extends BaseFragment {
     @Override
     protected void initViewsAndEvents() {
 
-        mNewsViewModel = new NewsViewModel(getActivity().getApplication());
+        mNewsViewModel = obtainViewModel(getActivity());
 
         setUpTheme();
 
@@ -140,6 +146,13 @@ public class NewsFragment extends BaseFragment {
 
     public static NewsFragment newInstance() {
         return new NewsFragment();
+    }
+
+    public static NewsViewModel obtainViewModel(FragmentActivity activity) {
+
+        ViewModelFactory factory = ViewModelFactory.getInstance(activity.getApplication());
+
+        return ViewModelProviders.of(activity, factory).get(NewsViewModel.class);
     }
 
     private void setUpTheme() {

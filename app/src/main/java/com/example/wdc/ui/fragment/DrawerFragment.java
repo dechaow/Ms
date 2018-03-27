@@ -51,13 +51,13 @@ public class DrawerFragment extends BaseFragment implements NavigationView.OnNav
         RelativeLayout mHeader = (RelativeLayout) mHeaderView.findViewById(R.id.nav_header);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mScreenHeight / 3);
         mHeader.setLayoutParams(params);
-        CircleImageView img = (CircleImageView) mHeaderView.findViewById(R.id.nav_icon);
+//        CircleImageView img = (CircleImageView) mHeaderView.findViewById(R.id.nav_icon);
         mNavigationView.setNavigationItemSelectedListener(this);
-        img.setOnClickListener(new View.OnClickListener() {
+        mNavigationView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("更换头像").setNegativeButton("拍照", null).setPositiveButton("相册", null).create().show();
+                builder.setTitle("更换封面").setNegativeButton("拍照", null).setPositiveButton("相册", null).create().show();
             }
         });
     }

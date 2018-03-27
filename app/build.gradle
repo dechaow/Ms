@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.dokka'
 
 android {
     //编译时的sdkVersion，这个是编译时的版本，是你代码中使用的sdkVersion
@@ -15,6 +18,7 @@ android {
         targetSdkVersion versions.targetSdkVersion
         versionCode versions.versionCode
         versionName versions.versionName
+        multiDexEnabled true
     }
     /**
      * 配置构建类型 一般分为debug 和 release
@@ -55,8 +59,20 @@ android {
  * 在这里块里声明你依赖的module、library(包括远端和本地的)
  */
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar','*.aar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
+
+    //glide,因为glide引用了最新的supportv4包 所以会和我们的supportLibrary有冲突，这里设置忽略glide的support
+    implementation ("com.github.bumptech.glide:glide:${versions.glide}"){
+        exclude group: "com.android.support"
+    }
+    implementation "com.github.bumptech.glide:okhttp3-integration:${versions.glide}"
+    annotationProcessor "com.github.bumptech.glide:compiler:${versions.glide}"
+
+    //okhttp
+    implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+    implementation "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
+    implementation "com.squareup.okio:okio:${versions.okio}"
 
     //support
     implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
@@ -67,8 +83,14 @@ dependencies {
     //liveData viewModel
     implementation "android.arch.lifecycle:extensions:${versions.lifecycle}"
     //ReactiveStreams support for LiveData
-    implementation "android.arch.lifecycle:reactivestreams:1.1.0"
+    implementation "android.arch.lifecycle:reactivestreams:${versions.lifecycle}"
 
+    //room
+    implementation "android.arch.persistence.room:runtime:${versions.room}"
+    annotationProcessor "android.arch.persistence.room:compiler:${versions.room}"
+
+    // Paging
+    implementation "android.arch.paging:runtime:${versions.paging}"
 
 // viewModel
 //    implementation "android.arch.lifecycle:viewmodel:${versions.lifecycle}"
@@ -77,12 +99,6 @@ dependencies {
     //butterknife
     implementation "com.jakewharton:butterknife:${versions.butterknife}"
     annotationProcessor "com.jakewharton:butterknife-compiler:${versions.butterknife}"
-
-    //glide,因为glide引用了最新的supportv4包 所以会和我们的supportLibrary有冲突，这里设置忽略glide的support
-    implementation ("com.github.bumptech.glide:glide:${versions.glide}"){
-        exclude group: "com.android.support"
-    }
-    annotationProcessor "com.github.bumptech.glide:compiler:${versions.glide}"
 
     //retrofit
     implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
@@ -93,11 +109,19 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
     implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
 
-    //okhttp
-    implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
-    implementation "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
-    implementation "com.squareup.okio:okio:${versions.okio}"
+
     implementation "com.google.code.gson:gson:${versions.gson}"
 
+    //ktx
+    implementation "androidx.core:core-ktx:${versions.ktx}"
 
 }
+
+/**
+ * 生成kotlin格式的代码查看文档
+ */
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/documentation"
+}
+

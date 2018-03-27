@@ -7,6 +7,8 @@ import android.content.Intent;
 import com.example.wdc.service.WebViewService;
 import com.example.wdc.ui.activity.MainActivity;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by dechao on 2016/7/22.
  *
@@ -18,7 +20,7 @@ import com.example.wdc.ui.activity.MainActivity;
 public class MsApp extends Application {
 
     private static Context mContext;
-
+@NotNull
     @Override
     public void onCreate() {
         super.onCreate();
